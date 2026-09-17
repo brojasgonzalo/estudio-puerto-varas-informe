@@ -500,12 +500,65 @@ function makePanel(mountId, opts){
 // ================= build =================
 var DEFAULT_COMUNA = 'Puerto Varas';
 
-makePanel('panel-headline',{
-  title:function(c){ return 'Matrícula total, '+c; },
-  dataAll: (function(){ var o={}; COMUNAS.forEach(function(c){ o[c]={ 'Matrícula total': matriculaTotal[c] }; }); return o; })(),
-  perComuna:true, order:['Matrícula total'], colorMap:{'Matrícula total':'--c-pv'}, years:YEARS11, type:'line', initial:DEFAULT_COMUNA, showLegend:false,
-  stat:function(d){ var v=d['Matrícula total']; return {value: fmt(v[v.length-1]), label:'matrícula 2025'}; }
-});
+// panel-headline: opcion "Todas" (por defecto) muestra las 4 comunas a la vez para comparar magnitud
+(function(){
+  var mount = document.getElementById('panel-headline');
+  var head=heln('div',{class:'card-head'});
+  var tw=heln('div'); var h3=heln('h3'); tw.appendChild(h3);
+  head.appendChild(tw);
+  var statBox=heln('div',{class:'stat'}); head.appendChild(statBox);
+  mount.appendChild(head);
+
+  var switchRow = heln('div',{class:'switcher'});
+  var options = ['Todas'].concat(COMUNAS);
+  var current = 'Todas';
+  var buttons = {};
+  options.forEach(function(name){
+    var b = heln('button',{class:'pillmini',type:'button','aria-pressed': name===current?'true':'false'});
+    b.style.setProperty('--dotc', name==='Todas' ? 'var(--ink-3)' : 'var('+COMUNA_COLOR[name]+')');
+    var dot=heln('span',{class:'dot'}); b.appendChild(dot); b.appendChild(document.createTextNode(name));
+    b.addEventListener('click',function(){
+      Object.keys(buttons).forEach(function(k){ buttons[k].setAttribute('aria-pressed','false'); });
+      b.setAttribute('aria-pressed','true');
+      current = name; render();
+    });
+    buttons[name]=b;
+    switchRow.appendChild(b);
+  });
+  var viewBtn = heln('button',{class:'viewbtn',type:'button'}); viewBtn.textContent='Ver tabla';
+  switchRow.appendChild(viewBtn);
+  mount.appendChild(switchRow);
+
+  var legendHost = heln('div'); mount.appendChild(legendHost);
+  var chartHost = heln('div'); mount.appendChild(chartHost);
+  var tableHost = heln('div'); tableHost.style.display='none'; mount.appendChild(tableHost);
+  var showingTable=false;
+  viewBtn.addEventListener('click',function(){
+    showingTable=!showingTable;
+    chartHost.style.display=showingTable?'none':'block';
+    tableHost.style.display=showingTable?'block':'none';
+    viewBtn.textContent=showingTable?'Ver gráfico':'Ver tabla';
+  });
+
+  function render(){
+    legendHost.innerHTML=''; tableHost.innerHTML='';
+    if(current==='Todas'){
+      h3.textContent='Matrícula total por comuna';
+      statBox.innerHTML='';
+      legendHost.appendChild(legendRow(COMUNAS,COMUNA_COLOR));
+      lineChart(chartHost,matriculaTotal,COMUNAS,YEARS11,COMUNA_COLOR);
+      tableHost.appendChild(dataTable(matriculaTotal,COMUNAS,YEARS11));
+    } else {
+      h3.textContent='Matrícula total, '+current;
+      var v = matriculaTotal[current];
+      statBox.innerHTML=fmt(v[v.length-1])+'<small>matrícula 2025</small>';
+      var d = {}; d[current]=v;
+      lineChart(chartHost,d,[current],YEARS11,COMUNA_COLOR);
+      tableHost.appendChild(dataTable(d,[current],YEARS11));
+    }
+  }
+  render();
+})();
 
 makePanel('panel-depe',{
   title:function(c){ return 'Matrícula por dependencia, '+c; },
