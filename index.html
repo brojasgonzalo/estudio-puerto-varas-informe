@@ -1,0 +1,558 @@
+<title>Estudio Puerto Varas</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#eef1f5; --surface:#ffffff; --surface-2:#f3f5f8; --surface-3:#e7ebf0;
+  --ink:#0f1520; --ink-2:#4c5666; --ink-3:#818b99;
+  --line:#dde2e9; --line-2:#e9ecf1;
+  --c-pv:#1f5490; --c-pm:#0d8f6e; --c-fr:#8a6ad4; --c-os:#a14a72;
+  --shadow: 0 1px 2px rgba(15,21,32,.04), 0 8px 24px -12px rgba(15,21,32,.10);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10131a; --surface:#171b24; --surface-2:#1d222c; --surface-3:#252b37;
+    --ink:#f2f4f7; --ink-2:#b9c1cf; --ink-3:#7c8494;
+    --line:#2a3040; --line-2:#232838;
+    --c-pv:#5591d6; --c-pm:#2bb08e; --c-fr:#a58ce0; --c-os:#d17ea0;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.55);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10131a; --surface:#171b24; --surface-2:#1d222c; --surface-3:#252b37;
+  --ink:#f2f4f7; --ink-2:#b9c1cf; --ink-3:#7c8494;
+  --line:#2a3040; --line-2:#232838;
+  --c-pv:#5591d6; --c-pm:#2bb08e; --c-fr:#a58ce0; --c-os:#d17ea0;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px -14px rgba(0,0,0,.55);
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;margin:0;padding-inline:18px;padding-block:0 60px;font-variant-numeric:tabular-nums;}
+h1,h2,h3{font-family:"Spectral",Georgia,serif;font-weight:600;text-wrap:balance;margin:0}
+.wrap{max-width:1180px;margin:0 auto}
+
+header.hero{padding-block:38px 20px}
+.eyebrow{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--c-pv);font-weight:700;margin-bottom:12px}
+h1{font-size:clamp(30px,5vw,52px);letter-spacing:-.015em;line-height:1.08;max-width:none}
+.hero-sub{color:var(--ink-2);font-size:16px;max-width:78ch;margin-top:14px;line-height:1.6}
+.src-line{margin-top:18px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--ink-3)}
+.src-line b{color:var(--ink-2);font-weight:600}
+.src-line a{color:var(--c-pv);text-decoration:none;border-bottom:1px solid transparent}
+.src-line a:hover{border-color:currentColor}
+.src-sep{opacity:.5}
+
+.stickybar{position:sticky;top:env(safe-area-inset-top,0px);background:color-mix(in srgb, var(--bg) 88%, transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:10;border-bottom:1px solid var(--line);padding-block:10px;margin-top:6px}
+nav.sect{display:flex;gap:4px}
+nav.sect a{font-size:13px;color:var(--ink-3);text-decoration:none;padding:6px 10px;border-radius:7px;font-weight:600}
+nav.sect a:hover{background:var(--surface-2);color:var(--ink)}
+
+.sectionhead{display:flex;align-items:baseline;gap:16px;padding-top:44px;margin-bottom:6px;border-top:3px solid var(--c-pv)}
+.sectionhead .num{font-family:"Spectral",serif;font-size:15px;font-weight:600;color:var(--c-pv);padding-top:10px;flex:none}
+.sectionhead h2{font-size:30px;padding-top:8px}
+section{padding-block:0 40px}
+section .lede{color:var(--ink-2);font-size:14.5px;max-width:74ch;line-height:1.6;margin:10px 0 24px}
+
+.glossary{display:flex;gap:0;flex-wrap:wrap;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin-bottom:26px;overflow:hidden}
+.glossary .gterm{flex:1 1 220px;padding:13px 16px;border-left:1px solid var(--line)}
+.glossary .gterm:first-child{border-left:none}
+.glossary .gterm b{display:block;font-size:12.5px;color:var(--c-pv);margin-bottom:3px}
+.glossary .gterm span{font-size:12.5px;color:var(--ink-2);line-height:1.5}
+@media (max-width:700px){.glossary .gterm{border-left:none;border-top:1px solid var(--line)}.glossary .gterm:first-child{border-top:none}}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:820px){.grid{grid-template-columns:1fr}}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 18px 14px;box-shadow:var(--shadow);display:flex;flex-direction:column}
+.card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card h3{font-size:14.5px;font-weight:700;font-family:"IBM Plex Sans",sans-serif;color:var(--ink);line-height:1.35}
+.card .sub{font-size:11.5px;color:var(--ink-3);margin:3px 0 0;line-height:1.5;max-width:46ch}
+.stat{font-family:"Spectral",serif;font-size:26px;font-weight:600;color:var(--ink);white-space:nowrap}
+.stat small{display:block;font-family:"IBM Plex Sans",sans-serif;font-size:10.5px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em}
+
+.switcher{display:flex;gap:5px;margin:12px 0 10px;flex-wrap:wrap}
+.pillmini{border:1.5px solid var(--line);background:transparent;color:var(--ink-3);font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:100px;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:6px}
+.pillmini:hover{border-color:var(--ink-3);color:var(--ink)}
+.pillmini .dot{width:7px;height:7px;border-radius:50%;background:var(--dotc,var(--ink-3))}
+.pillmini[aria-pressed="true"]{background:var(--dotc);border-color:var(--dotc);color:#fff}
+.pillmini[aria-pressed="true"] .dot{background:#fff}
+
+.viewbtn{border:none;background:none;color:var(--c-pv);font-size:11.5px;font-weight:700;padding:4px 0;cursor:pointer;font-family:inherit;margin-left:auto}
+.viewbtn:hover{text-decoration:underline}
+.legend{display:flex;gap:13px;flex-wrap:wrap;font-size:11px;color:var(--ink-2);margin-bottom:8px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:9px;height:9px;border-radius:3px;display:inline-block}
+
+svg.chart{width:100%;height:auto;overflow:visible;display:block}
+.axis-label{fill:var(--ink-3);font-size:9.5px;font-family:"IBM Plex Sans",sans-serif}
+.gridline{stroke:var(--line-2);stroke-width:1}
+.baseline{stroke:var(--line);stroke-width:1}
+.hovercol{fill:transparent}
+.hovercol:hover{fill:var(--surface-3);opacity:.55}
+.crosshair{stroke:var(--ink-3);stroke-width:1;stroke-dasharray:2 2;opacity:0;pointer-events:none}
+
+.datatable{width:100%;border-collapse:collapse;font-size:11.5px}
+.datatable th,.datatable td{padding:6px 8px;text-align:right;border-bottom:1px solid var(--line-2);white-space:nowrap}
+.datatable th:first-child,.datatable td:first-child{text-align:left;position:sticky;left:0;background:var(--surface)}
+.datatable thead th{color:var(--ink-3);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em}
+.datatable tbody tr:last-child td{font-weight:700;color:var(--ink);border-bottom:none}
+.tablewrap{overflow-x:auto}
+
+.tt{position:fixed;pointer-events:none;background:var(--ink);color:var(--surface);border-radius:9px;padding:9px 12px;font-size:12px;line-height:1.5;box-shadow:0 10px 30px -8px rgba(0,0,0,.35);opacity:0;transition:opacity .1s;z-index:50;max-width:220px}
+.tt.show{opacity:1}
+.tt .ttyear{font-weight:700;margin-bottom:3px;font-size:11.5px}
+.tt .ttrow{display:flex;justify-content:space-between;gap:12px}
+.tt .ttrow i{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:5px;flex:none}
+.tt .ttname{display:flex;align-items:center;opacity:.85}
+
+footer{border-top:1px solid var(--line);margin-top:20px;padding-block:26px 10px;color:var(--ink-3);font-size:12px;line-height:1.7}
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">CEEL UC &middot; Estudio Puerto Varas</div>
+  <h1>Educaci&oacute;n y migraci&oacute;n estudiantil en el entorno de Puerto Varas</h1>
+  <p class="hero-sub">Matr&iacute;cula, establecimientos y movimiento de alumnos entre Puerto Varas, Puerto Montt, Frutillar y Osorno, 2015&ndash;2025.</p>
+  <div class="src-line">
+    <b>Fuente</b>
+    <a href="https://datosabiertos.mineduc.cl/directorio-de-establecimientos-educacionales/" target="_blank" rel="noopener">Directorio de Establecimientos</a>
+    <span class="src-sep">&middot;</span>
+    <a href="https://datosabiertos.mineduc.cl/resumen-de-matricula-por-establecimiento-educacional/" target="_blank" rel="noopener">Resumen de Matr&iacute;cula</a>
+    <span class="src-sep">&middot;</span>
+    <a href="https://datosabiertos.mineduc.cl/matricula-por-estudiante-2/" target="_blank" rel="noopener">Matr&iacute;cula por Estudiante</a>
+    <span class="src-sep">&middot;</span>
+    <span>Ministerio de Educaci&oacute;n de Chile, Centro de Estudios &middot; 2015&ndash;2025</span>
+  </div>
+</header>
+
+<div class="stickybar">
+  <nav class="sect">
+    <a href="#general">General</a>
+    <a href="#establecimientos">Establecimientos</a>
+    <a href="#migracion">Migraci&oacute;n</a>
+  </nav>
+</div>
+
+<section id="general">
+  <div class="sectionhead"><span class="num">01</span><h2>Matr&iacute;cula general</h2></div>
+  <p class="lede">Matr&iacute;cula total, todos los niveles y dependencias, y su composici&oacute;n por tipo de colegio. Cada gr&aacute;fico se elige por separado con sus propios botones de comuna.</p>
+  <div class="grid">
+    <div class="card" id="panel-headline"></div>
+    <div class="card" id="panel-depe"></div>
+  </div>
+</section>
+
+<section id="establecimientos">
+  <div class="sectionhead"><span class="num">02</span><h2>Establecimientos</h2></div>
+  <p class="lede">N&uacute;mero de colegios, no de alumnos, por tipo de dependencia y por ruralidad.</p>
+  <div class="grid">
+    <div class="card" id="panel-estabdepe"></div>
+    <div class="card" id="panel-estabrural"></div>
+  </div>
+</section>
+
+<section id="migracion">
+  <div class="sectionhead"><span class="num">03</span><h2>Migraci&oacute;n estudiantil</h2></div>
+  <p class="lede">Se sigue al mismo alumno a trav&eacute;s de los a&ntilde;os con su identificador enmascarado (mrun). Solo se mide en el tramo regular, 1&deg; b&aacute;sico a 4&deg; medio.</p>
+
+  <div class="glossary">
+    <div class="gterm"><b>Entrada</b><span>Alumno matriculado en el tramo regular de la comuna este a&ntilde;o, que el a&ntilde;o anterior no estaba en ninguna de las 4 comunas. No incluye a quienes reci&eacute;n comienzan 1&deg; b&aacute;sico.</span></div>
+    <div class="gterm"><b>Salida</b><span>Alumno matriculado este a&ntilde;o que no estar&aacute; el a&ntilde;o siguiente en ninguna de las 4 comunas. No incluye a los egresados de 4&deg; medio.</span></div>
+    <div class="gterm"><b>Origen</b><span>Comuna de residencia declarada al llegar: la misma del colegio, otra de las 4 comunas del estudio, o fuera de las 4.</span></div>
+  </div>
+
+  <div class="grid">
+    <div class="card" id="panel-entrada"></div>
+    <div class="card" id="panel-origen"></div>
+    <div class="card" id="panel-flow"></div>
+    <div class="card" id="panel-region"></div>
+  </div>
+</section>
+
+<footer>
+  <p>Elaboraci&oacute;n propia, CEEL UC, en base a microdatos p&uacute;blicos del Ministerio de Educaci&oacute;n de Chile (Centro de Estudios, Datos Abiertos). Los identificadores de alumno (mrun) est&aacute;n enmascarados por Mineduc y no permiten identificar a la persona. El gr&aacute;fico de regi&oacute;n de origen usa solo las 5 comunas de origen m&aacute;s frecuentes por a&ntilde;o, no el universo completo de fuera de las 4 comunas.</p>
+</footer>
+
+</div>
+
+<div class="tt" id="tt"></div>
+
+<script>
+(function(){
+// ================= data =================
+var YEARS11 = [2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+var YEARS10 = [2016,2017,2018,2019,2020,2021,2022,2023,2024,2025];
+var COMUNAS = ['Puerto Varas','Puerto Montt','Frutillar','Osorno'];
+var COMUNA_COLOR = {'Puerto Varas':'--c-pv','Puerto Montt':'--c-pm','Frutillar':'--c-fr','Osorno':'--c-os'};
+var depeOrder = ['Municipal','Part. Subvencionado','Part. Pagado','Serv. Local Educ.'];
+var DEPE_COLOR = {'Municipal':'--c-pv','Part. Subvencionado':'--c-pm','Part. Pagado':'--c-fr','Serv. Local Educ.':'--c-os'};
+var RURAL_COLOR = {'Urbano':'--c-pv','Rural':'--c-os'};
+var ORIGEN_COLOR = {'Misma comuna':'--c-pv','Otra de las 4':'--c-pm','Fuera de las 4':'--c-os'};
+var REGION_COLOR = {'Los Lagos':'--c-pv','Otras regiones':'--c-os'};
+var FLOW_COLOR = {mantiene:'--c-pv',entrante:'--c-pm',ingreso:'--c-fr'};
+
+var matriculaTotal = {
+  'Puerto Varas': [9665,10024,9937,10192,10098,10821,10979,11555,11766,11734,11715],
+  'Puerto Montt': [56628,56504,56513,56797,57632,57792,58318,58870,58602,57698,56718],
+  'Frutillar':    [4138,4158,4223,4229,4242,4291,4399,4542,4728,4708,4699],
+  'Osorno':       [37729,38156,37360,37188,37299,36670,37214,37003,36233,35555,34482]
+};
+
+var depeGeneral = {
+  'Puerto Varas': { Municipal:[3560,3578,3372,3521,3467,3383,0,0,0,0,0], 'Part. Subvencionado':[3582,3866,4061,3923,4015,4243,4119,4135,4130,4168,4001], 'Part. Pagado':[2523,2580,2504,2748,2616,3195,3327,3827,3985,3954,4074], 'Serv. Local Educ.':[0,0,0,0,0,0,3533,3593,3651,3612,3640] },
+  'Puerto Montt': { Municipal:[23080,22480,22042,21870,22006,21689,22074,22025,21251,20375,19651], 'Part. Subvencionado':[30130,30565,30872,31067,31678,32148,32485,32737,33100,33022,32689], 'Part. Pagado':[3418,3459,3599,3860,3948,3955,3759,4108,4250,4300,4378], 'Serv. Local Educ.':[0,0,0,0,0,0,0,0,0,0,0] },
+  'Frutillar': { Municipal:[2703,2662,2678,2666,2643,2651,0,0,0,0,0], 'Part. Subvencionado':[1150,1133,1134,1140,1145,1141,1156,1172,1155,1185,1141], 'Part. Pagado':[285,363,411,423,454,499,537,514,611,637,674], 'Serv. Local Educ.':[0,0,0,0,0,0,2706,2856,2962,2886,2884] },
+  'Osorno': { Municipal:[13488,12950,13026,12854,12535,12081,12106,12118,11772,11247,10869], 'Part. Subvencionado':[20879,21795,20929,20576,20945,20906,21555,21023,20469,20261,19540], 'Part. Pagado':[3362,3411,3405,3758,3819,3683,3553,3862,3992,4047,4073], 'Serv. Local Educ.':[0,0,0,0,0,0,0,0,0,0,0] }
+};
+
+var estabDepe = {
+  'Puerto Montt': { Municipal:[75,75,75,76,76,76,76,76,76,76,76], 'Part. Subvencionado':[90,85,83,81,81,79,79,79,79,79,80], 'Part. Pagado':[8,6,5,5,5,5,5,5,5,5,5], 'Serv. Local Educ.':[0,0,0,0,0,0,0,0,0,0,0] },
+  'Frutillar':    { Municipal:[13,12,12,12,12,12,0,0,0,0,0], 'Part. Subvencionado':[13,13,13,13,13,12,12,12,11,12,12], 'Part. Pagado':[2,2,2,2,2,2,2,2,2,2,2], 'Serv. Local Educ.':[0,0,0,0,0,0,12,12,12,12,12] },
+  'Puerto Varas': { Municipal:[20,18,18,18,18,18,0,0,0,0,0], 'Part. Subvencionado':[15,14,14,14,14,15,14,14,14,14,13], 'Part. Pagado':[3,3,4,4,4,5,5,5,5,5,5], 'Serv. Local Educ.':[0,0,0,0,0,0,18,18,17,17,17] },
+  'Osorno':       { Municipal:[41,40,40,40,40,40,40,40,40,40,40], 'Part. Subvencionado':[79,77,76,71,71,70,70,70,67,67,66], 'Part. Pagado':[7,7,7,8,6,5,5,6,5,5,6], 'Serv. Local Educ.':[0,0,0,0,0,0,0,0,0,0,0] }
+};
+
+var estabRural = {
+  'Puerto Montt': { Urbano:[126,122,119,118,118,116,117,117,117,117,117], Rural:[47,44,44,44,44,44,43,43,43,43,44] },
+  'Frutillar':    { Urbano:[13,13,13,13,13,13,13,13,13,13,13], Rural:[15,14,14,14,14,13,13,13,12,13,13] },
+  'Puerto Varas': { Urbano:[18,18,19,19,19,20,19,19,20,20,20], Rural:[20,17,17,17,17,18,18,18,16,16,15] },
+  'Osorno':       { Urbano:[107,104,103,100,98,96,95,95,91,91,91], Rural:[20,20,20,19,19,19,20,21,21,21,21] }
+};
+
+var migEntrada = {
+  'Puerto Montt': { Municipal:[964,946,1121,1293,1138,964,1653,1448,1283,1252], 'Part. Subvencionado':[610,616,639,686,609,568,823,689,622,618], 'Part. Pagado':[56,68,59,71,69,75,121,106,94,105], 'Serv. Local Educ.':[0,0,0,0,0,0,0,0,0,0] },
+  'Frutillar':    { Municipal:[184,200,226,205,203,0,0,0,0,0], 'Part. Subvencionado':[26,29,35,26,38,18,24,32,43,52], 'Part. Pagado':[24,27,12,20,38,47,14,43,33,25], 'Serv. Local Educ.':[0,0,0,0,0,207,322,276,224,200] },
+  'Puerto Varas': { Municipal:[240,206,190,208,190,0,0,0,0,0], 'Part. Subvencionado':[274,114,96,122,106,67,85,78,93,65], 'Part. Pagado':[81,36,256,81,388,182,300,124,124,193], 'Serv. Local Educ.':[0,0,0,0,0,236,295,263,257,266] },
+  'Osorno':       { Municipal:[616,593,614,617,489,461,689,550,569,564], 'Part. Subvencionado':[1002,553,539,511,501,383,464,517,532,489], 'Part. Pagado':[58,62,93,86,74,112,163,87,76,71], 'Serv. Local Educ.':[0,0,0,0,0,0,0,0,0,0] }
+};
+
+var migOrigen = {
+  'Puerto Montt': { 'Misma comuna':[788,679,877,1040,1021,848,1370,1326,1112,1174], 'Otra de las 4':[40,29,30,48,26,35,24,39,16,25], 'Fuera de las 4':[802,922,912,962,769,724,1203,878,871,776] },
+  'Frutillar':    { 'Misma comuna':[78,60,87,70,64,71,116,113,78,99], 'Otra de las 4':[6,6,12,7,16,14,17,16,15,21], 'Fuera de las 4':[150,190,174,174,199,187,227,222,207,157] },
+  'Puerto Varas': { 'Misma comuna':[223,97,171,165,292,188,252,172,168,205], 'Otra de las 4':[94,29,46,19,51,25,38,39,30,39], 'Fuera de las 4':[278,230,325,227,341,272,390,254,276,280] },
+  'Osorno':       { 'Misma comuna':[389,403,469,471,409,382,506,489,437,487], 'Otra de las 4':[30,21,15,15,17,18,16,14,15,16], 'Fuera de las 4':[1257,784,762,728,638,556,794,651,725,621] }
+};
+
+// saliente: valor en la posicion del anio Y = "de los presentes en Y, cuantos ya no estan en Y+1"
+var migFlow = {
+  'Puerto Montt': { mantiene:[39016,39570,40162,40543,41163,41913,41673,42118,42094,41913], entrante:[1630,1630,1819,2050,1816,1607,2597,2243,1999,1975], ingreso:[4088,3919,3700,3595,3675,3767,3908,3873,3552,3484], saliente:[2377,2073,2188,1962,1466,2208,2519,2531,2252,null] },
+  'Frutillar':    { mantiene:[2873,2895,2929,3001,3054,3155,3231,3333,3353,3371], entrante:[234,256,273,251,279,272,360,351,300,277], ingreso:[308,311,311,290,268,295,309,302,300,286], saliente:[273,287,283,257,186,265,317,341,335,null] },
+  'Puerto Varas': { mantiene:[6811,7097,7152,7211,7425,7887,8063,8569,8724,8703], entrante:[595,356,542,411,684,485,680,465,474,524], ingreso:[659,667,720,708,704,742,815,793,716,734], saliente:[492,433,596,389,341,452,455,475,456,null] },
+  'Osorno':       { mantiene:[25298,25252,25367,25490,25516,25794,25365,25317,24936,24508], entrante:[1676,1208,1246,1214,1064,956,1316,1154,1177,1124], ingreso:[2396,2454,2384,2294,2157,2144,2243,2012,1948,1888], saliente:[2053,1533,1511,1454,952,1391,1332,1361,1240,null] }
+};
+
+var migRegion = {
+  'Puerto Montt': { 'Los Lagos':[199,207,217,217,147,128,170,141,179,123], 'Otras regiones':[33,23,0,33,46,45,67,48,35,66] },
+  'Frutillar':    { 'Los Lagos':[89,99,104,80,91,59,80,79,72,61], 'Otras regiones':[0,0,0,5,0,18,8,20,9,11] },
+  'Puerto Varas': { 'Los Lagos':[183,88,94,66,99,52,62,62,62,71], 'Otras regiones':[0,8,26,21,37,50,88,35,37,49] },
+  'Osorno':       { 'Los Lagos':[702,328,313,280,225,207,266,227,285,253], 'Otras regiones':[0,0,0,0,0,0,0,0,0,0] }
+};
+
+// ================= helpers =================
+var NS='http://www.w3.org/2000/svg';
+function el(tag,attrs){ var e=document.createElementNS(NS,tag); for(var k in attrs) e.setAttribute(k,attrs[k]); return e; }
+function heln(tag,attrs){ var e=document.createElement(tag); for(var k in (attrs||{})) e.setAttribute(k,attrs[k]); return e; }
+function fmt(n){ if(n==null) return 's/d'; return Math.round(n).toLocaleString('es-CL'); }
+function niceMax(m){ if(m<=0) return 10; var mag=Math.pow(10,Math.floor(Math.log10(m))); var n=m/mag; var step = n<=1?1:n<=2?2:n<=5?5:10; return step*mag; }
+
+var tt = document.getElementById('tt');
+function showTT(e,html){ tt.innerHTML=html; tt.classList.add('show'); moveTT(e); }
+function moveTT(e){ var x=e.clientX+16,y=e.clientY+16; var vw=window.innerWidth,vh=window.innerHeight; if(x+230>vw) x=e.clientX-230; if(y+90>vh) y=e.clientY-90; tt.style.left=x+'px'; tt.style.top=y+'px'; }
+function hideTT(){ tt.classList.remove('show'); }
+
+function ttRows(names,colorMap,vals,i){
+  var h=''; names.forEach(function(name){
+    var v = vals[name][i];
+    h += '<div class="ttrow"><span class="ttname"><i style="background:var('+colorMap[name]+')"></i>'+name+'</span><b>'+fmt(v)+'</b></div>';
+  });
+  return h;
+}
+
+function smoothPath(pts){
+  var d=''; var valid = pts.filter(function(p){return p;});
+  for(var idx=0, j=0; idx<pts.length; idx++){
+    var p = pts[idx]; if(!p) continue;
+    if(d===''){ d='M'+p[0].toFixed(1)+' '+p[1].toFixed(1)+' '; }
+    else {
+      var prev = valid[j-1];
+      var mx = (prev[0]+p[0])/2;
+      d += 'Q'+prev[0].toFixed(1)+' '+prev[1].toFixed(1)+' '+mx.toFixed(1)+' '+((prev[1]+p[1])/2).toFixed(1)+' ';
+      d += 'T'+p[0].toFixed(1)+' '+p[1].toFixed(1)+' ';
+    }
+    j++;
+  }
+  return d;
+}
+
+var CW=480, CH=200, PADL=32, PADR=12, PADT=12, PADB=20;
+
+function scaffold(svg,maxV,years){
+  var n=years.length;
+  var x = function(i){ return PADL + i*(CW-PADL-PADR)/(n-1); };
+  var y = function(v){ return CH-PADB - (v/maxV)*(CH-PADT-PADB); };
+  [0,0.5,1].forEach(function(f){
+    var yy=CH-PADB-f*(CH-PADT-PADB);
+    svg.appendChild(el('line',{x1:PADL,x2:CW-PADR,y1:yy,y2:yy,class:'gridline'}));
+    var t=el('text',{x:2,y:yy+3,class:'axis-label'}); t.textContent=fmt(maxV*f); svg.appendChild(t);
+  });
+  svg.appendChild(el('line',{x1:PADL,x2:CW-PADR,y1:CH-PADB,y2:CH-PADB,class:'baseline'}));
+  years.forEach(function(yr,i){
+    if(i===0||i===n-1||i===Math.floor((n-1)/2)){
+      var t=el('text',{x:x(i),y:CH-4,class:'axis-label','text-anchor': i===0?'start':(i===n-1?'end':'middle')}); t.textContent=yr; svg.appendChild(t);
+    }
+  });
+  return {x:x,y:y};
+}
+
+function addHoverCols(svg,x,years,onHover){
+  var n=years.length;
+  var colW = (CW-PADL-PADR)/n;
+  years.forEach(function(yr,i){
+    var cx = x(i);
+    var rect = el('rect',{x:cx-colW/2,y:PADT,width:colW,height:CH-PADT-PADB,class:'hovercol'});
+    var cross = el('line',{x1:cx,x2:cx,y1:PADT,y2:CH-PADB,class:'crosshair'});
+    svg.appendChild(rect); svg.appendChild(cross);
+    rect.addEventListener('pointerenter',function(e){ cross.style.opacity=1; onHover(e,i); });
+    rect.addEventListener('pointermove',function(e){ moveTT(e); });
+    rect.addEventListener('pointerleave',function(){ cross.style.opacity=0; hideTT(); });
+  });
+}
+
+function newSvg(){ return el('svg',{class:'chart',viewBox:'0 0 '+CW+' '+CH}); }
+
+function lineChart(container,dataObj,order,years,colorMap){
+  container.innerHTML='';
+  var svg = newSvg();
+  var allVals=[]; order.forEach(function(k){ (dataObj[k]||[]).forEach(function(v){ if(v!=null) allVals.push(v);});});
+  var maxV = niceMax(Math.max.apply(null, allVals.concat([1])));
+  var sc = scaffold(svg,maxV,years);
+  order.forEach(function(name){
+    var vals = dataObj[name]; if(!vals) return;
+    var color = 'var('+colorMap[name]+')';
+    var pts = vals.map(function(v,i){ return v==null?null:[sc.x(i),sc.y(v)]; });
+    svg.appendChild(el('path',{d:smoothPath(pts),fill:'none',stroke:color,'stroke-width':2.6,'stroke-linecap':'round'}));
+    var last=null; for(var i=vals.length-1;i>=0;i--){ if(vals[i]!=null){last=i;break;} }
+    if(last!=null) svg.appendChild(el('circle',{cx:sc.x(last),cy:sc.y(vals[last]),r:3.2,fill:color}));
+  });
+  addHoverCols(svg,sc.x,years,function(e,i){
+    showTT(e,'<div class="ttyear">'+years[i]+'</div>'+ttRows(order.filter(function(n){return dataObj[n];}),colorMap,dataObj,i));
+  });
+  container.appendChild(svg);
+}
+
+function stackedAreaChart(container,dataObj,order,years,colorMap){
+  container.innerHTML='';
+  var svg = newSvg();
+  var totals = years.map(function(_,i){ var s=0; order.forEach(function(k){ s+=(dataObj[k][i]||0); }); return s; });
+  var maxV = niceMax(Math.max.apply(null, totals.concat([1])));
+  var sc = scaffold(svg,maxV,years);
+  var cum = years.map(function(){return 0;});
+  order.forEach(function(name){
+    var vals = dataObj[name];
+    var top = years.map(function(_,i){ return cum[i]+(vals[i]||0); });
+    var topPts = top.map(function(v,i){ return [sc.x(i),sc.y(v)]; });
+    var botPts = cum.map(function(v,i){ return [sc.x(i),sc.y(v)]; });
+    var d='M'+topPts[0][0].toFixed(1)+' '+topPts[0][1].toFixed(1)+' ';
+    for(var i=1;i<topPts.length;i++) d+='L'+topPts[i][0].toFixed(1)+' '+topPts[i][1].toFixed(1)+' ';
+    for(var i=botPts.length-1;i>=0;i--) d+='L'+botPts[i][0].toFixed(1)+' '+botPts[i][1].toFixed(1)+' ';
+    d+='Z';
+    var color='var('+colorMap[name]+')';
+    svg.appendChild(el('path',{d:d,fill:color,opacity:.82}));
+    svg.appendChild(el('path',{d:smoothPath(topPts),fill:'none',stroke:color,'stroke-width':1.4}));
+    cum = top;
+  });
+  addHoverCols(svg,sc.x,years,function(e,i){
+    var html = '<div class="ttyear">'+years[i]+'</div>'+ttRows(order,colorMap,dataObj,i)+
+      '<div class="ttrow" style="margin-top:4px;padding-top:4px;border-top:1px solid rgba(255,255,255,.2)"><span class="ttname">Total</span><b>'+fmt(totals[i])+'</b></div>';
+    showTT(e,html);
+  });
+  container.appendChild(svg);
+}
+
+function stackedBarChart(container,dataObj,order,years,colorMap,overlay){
+  container.innerHTML='';
+  var svg = newSvg();
+  var n=years.length;
+  var totals = years.map(function(_,i){ var s=0; order.forEach(function(k){ s+=(dataObj[k][i]||0); }); return s; });
+  var ov = overlay ? overlay.values : [];
+  var maxV = niceMax(Math.max.apply(null, totals.concat(ov.filter(function(v){return v!=null;})).concat([1])));
+  var sc = scaffold(svg,maxV,years);
+  var bw = (CW-PADL-PADR)/n*0.56;
+  for(var i=0;i<n;i++){
+    var acc=0;
+    order.forEach(function(name){
+      var v = dataObj[name][i]||0; if(v<=0) return;
+      var y0=sc.y(acc), y1=sc.y(acc+v);
+      svg.appendChild(el('rect',{x:sc.x(i)-bw/2,y:y1,width:bw,height:Math.max(0,y0-y1),fill:'var('+colorMap[name]+')',rx:3}));
+      acc+=v;
+    });
+  }
+  if(overlay){
+    var pts = ov.map(function(v,i){ return v==null?null:[sc.x(i),sc.y(v)]; });
+    svg.appendChild(el('path',{d:smoothPath(pts),fill:'none',stroke:'var(--ink)',opacity:.6,'stroke-width':1.8,'stroke-dasharray':'1 4','stroke-linecap':'round'}));
+    pts.forEach(function(p){ if(!p) return; svg.appendChild(el('circle',{cx:p[0],cy:p[1],r:2.6,fill:'var(--ink)',opacity:.7})); });
+  }
+  addHoverCols(svg,sc.x,years,function(e,i){
+    var html = '<div class="ttyear">'+years[i]+'</div>'+ttRows(order,colorMap,dataObj,i)+
+      '<div class="ttrow" style="margin-top:4px;padding-top:4px;border-top:1px solid rgba(255,255,255,.2)"><span class="ttname">Total</span><b>'+fmt(totals[i])+'</b></div>'+
+      (overlay && ov[i]!=null ? '<div class="ttrow"><span class="ttname">'+overlay.name+'</span><b>'+fmt(ov[i])+'</b></div>' : '');
+    showTT(e,html);
+  });
+  container.appendChild(svg);
+}
+
+function dataTable(dataObj,order,years,extraRow){
+  var t = heln('table',{class:'datatable'});
+  var thead=heln('thead'); var htr=heln('tr');
+  htr.appendChild(heln('th')).textContent='';
+  years.forEach(function(y){ var th=heln('th'); th.textContent=y; htr.appendChild(th); });
+  thead.appendChild(htr); t.appendChild(thead);
+  var tbody=heln('tbody');
+  order.forEach(function(name){
+    var tr=heln('tr'); var th=heln('td'); th.textContent=name; tr.appendChild(th);
+    years.forEach(function(y,i){ var td=heln('td'); td.textContent=fmt(dataObj[name][i]); tr.appendChild(td); });
+    tbody.appendChild(tr);
+  });
+  var totRow=heln('tr'); var totTh=heln('td'); totTh.textContent='Total'; totRow.appendChild(totTh);
+  years.forEach(function(y,i){ var s=0; order.forEach(function(k){ s+=(dataObj[k][i]||0); }); var td=heln('td'); td.textContent=fmt(s); totRow.appendChild(td); });
+  tbody.appendChild(totRow);
+  if(extraRow){
+    var er=heln('tr'); var eth=heln('td'); eth.textContent=extraRow.label; er.appendChild(eth);
+    extraRow.values.forEach(function(v){ var td=heln('td'); td.textContent = v==null?'s/d':fmt(v); er.appendChild(td); });
+    tbody.appendChild(er);
+  }
+  t.appendChild(tbody);
+  var wrap=heln('div',{class:'tablewrap'}); wrap.appendChild(t);
+  return wrap;
+}
+
+function legendRow(order,colorMap){
+  var d=heln('div',{class:'legend'});
+  order.forEach(function(name){
+    var s=heln('span'); var i=heln('i'); i.style.background='var('+colorMap[name]+')';
+    s.appendChild(i); s.appendChild(document.createTextNode(name)); d.appendChild(s);
+  });
+  return d;
+}
+
+// -------- panel factory: own comuna switcher, own chart/table toggle --------
+function makePanel(mountId, opts){
+  var mount = document.getElementById(mountId);
+  var head = heln('div',{class:'card-head'});
+  var titleWrap = heln('div');
+  var h3 = heln('h3'); titleWrap.appendChild(h3);
+  if(opts.sub){ var sub = heln('div',{class:'sub'}); sub.textContent=opts.sub; titleWrap.appendChild(sub); }
+  head.appendChild(titleWrap);
+  var statBox = heln('div',{class:'stat'});
+  head.appendChild(statBox);
+  mount.appendChild(head);
+
+  var switchRow = heln('div',{class:'switcher'});
+  COMUNAS.forEach(function(c){
+    var b = heln('button',{class:'pillmini',type:'button','aria-pressed': c===opts.initial?'true':'false'});
+    b.style.setProperty('--dotc','var('+COMUNA_COLOR[c]+')');
+    var dot=heln('span',{class:'dot'}); b.appendChild(dot); b.appendChild(document.createTextNode(c));
+    b.addEventListener('click',function(){
+      switchRow.querySelectorAll('.pillmini').forEach(function(p){p.setAttribute('aria-pressed','false');});
+      b.setAttribute('aria-pressed','true');
+      render(c);
+    });
+    switchRow.appendChild(b);
+  });
+  var viewBtn = heln('button',{class:'viewbtn',type:'button'}); viewBtn.textContent='Ver tabla';
+  switchRow.appendChild(viewBtn);
+  mount.appendChild(switchRow);
+
+  var legendHost = heln('div'); mount.appendChild(legendHost);
+  if(opts.showLegend!==false) legendHost.appendChild(legendRow(opts.order,opts.colorMap));
+
+  var chartHost = heln('div'); mount.appendChild(chartHost);
+  var tableHost = heln('div'); tableHost.style.display='none'; mount.appendChild(tableHost);
+  var showingTable = false;
+  viewBtn.addEventListener('click',function(){
+    showingTable = !showingTable;
+    chartHost.style.display = showingTable?'none':'block';
+    tableHost.style.display = showingTable?'block':'none';
+    viewBtn.textContent = showingTable?'Ver gráfico':'Ver tabla';
+  });
+
+  function render(comuna){
+    var data = opts.perComuna ? opts.dataAll[comuna] : opts.dataAll;
+    h3.textContent = opts.title(comuna);
+    var extraRow = null;
+    if(opts.overlayKey){
+      stackedBarChart(chartHost,data,opts.order,opts.years,opts.colorMap,{name:opts.overlayLabel,values:data[opts.overlayKey]});
+      extraRow = {label:opts.overlayLabel, values:data[opts.overlayKey]};
+    } else if(opts.type==='line'){ lineChart(chartHost,data,opts.order,opts.years,opts.colorMap); }
+    else if(opts.type==='area'){ stackedAreaChart(chartHost,data,opts.order,opts.years,opts.colorMap); }
+    else { stackedBarChart(chartHost,data,opts.order,opts.years,opts.colorMap); }
+    tableHost.innerHTML=''; tableHost.appendChild(dataTable(data,opts.order,opts.years,extraRow));
+    if(opts.stat){
+      var s = opts.stat(data);
+      statBox.innerHTML = s.value+'<small>'+s.label+'</small>';
+    } else statBox.innerHTML='';
+  }
+  render(opts.initial);
+}
+
+// ================= build =================
+var DEFAULT_COMUNA = 'Puerto Varas';
+
+makePanel('panel-headline',{
+  title:function(c){ return 'Matrícula total, '+c; },
+  dataAll: (function(){ var o={}; COMUNAS.forEach(function(c){ o[c]={ 'Matrícula total': matriculaTotal[c] }; }); return o; })(),
+  perComuna:true, order:['Matrícula total'], colorMap:{'Matrícula total':'--c-pv'}, years:YEARS11, type:'line', initial:DEFAULT_COMUNA, showLegend:false,
+  stat:function(d){ var v=d['Matrícula total']; return {value: fmt(v[v.length-1]), label:'matrícula 2025'}; }
+});
+
+makePanel('panel-depe',{
+  title:function(c){ return 'Matrícula por dependencia, '+c; },
+  sub:'SLE reemplaza a Municipal desde 2021 en Frutillar y Puerto Varas',
+  dataAll:depeGeneral, perComuna:true, order:depeOrder, colorMap:DEPE_COLOR, years:YEARS11, type:'area', initial:DEFAULT_COMUNA,
+  stat:function(d){ var v=d['Part. Pagado']; return {value: fmt(v[v.length-1]), label:'part. pagado 2025'}; }
+});
+
+makePanel('panel-estabdepe',{
+  title:function(c){ return 'Colegios por dependencia, '+c; },
+  dataAll:estabDepe, perComuna:true, order:depeOrder, colorMap:DEPE_COLOR, years:YEARS11, type:'bar', initial:DEFAULT_COMUNA,
+  stat:function(d){ var tot=0; depeOrder.forEach(function(k){ tot+=(d[k][d[k].length-1]||0); }); return {value:tot, label:'colegios 2025'}; }
+});
+
+makePanel('panel-estabrural',{
+  title:function(c){ return 'Colegios urbanos y rurales, '+c; },
+  dataAll:estabRural, perComuna:true, order:['Urbano','Rural'], colorMap:RURAL_COLOR, years:YEARS11, type:'bar', initial:DEFAULT_COMUNA,
+  stat:function(d){ var u=d.Urbano[d.Urbano.length-1], r=d.Rural[d.Rural.length-1]; var pct = Math.round(100*r/(u+r)); return {value:pct+'%', label:'rural 2025'}; }
+});
+
+makePanel('panel-entrada',{
+  title:function(c){ return 'Entradas por dependencia, '+c; },
+  sub:'Alumnos nuevos en el tramo regular, por año y tipo de colegio al que entraron',
+  dataAll:migEntrada, perComuna:true, order:depeOrder, colorMap:DEPE_COLOR, years:YEARS10, type:'line', initial:DEFAULT_COMUNA,
+  stat:function(d){ var tot=0; depeOrder.forEach(function(k){ tot+=(d[k][d[k].length-1]||0); }); return {value:tot, label:'entradas 2025'}; }
+});
+
+makePanel('panel-origen',{
+  title:function(c){ return 'De dónde vienen los que llegan, '+c; },
+  dataAll:migOrigen, perComuna:true, order:['Misma comuna','Otra de las 4','Fuera de las 4'], colorMap:ORIGEN_COLOR, years:YEARS10, type:'area', initial:DEFAULT_COMUNA,
+  stat:function(d){ var f=d['Fuera de las 4']; var tot=0; ['Misma comuna','Otra de las 4','Fuera de las 4'].forEach(function(k){tot+=d[k][d[k].length-1];}); var pct=Math.round(100*f[f.length-1]/tot); return {value:pct+'%', label:'de fuera, 2025'}; }
+});
+
+makePanel('panel-flow',{
+  title:function(c){ return 'Se mantiene, entra, ingresa y sale, '+c; },
+  sub:'Barras: matrícula del tramo regular · línea punteada: salientes al año siguiente',
+  dataAll:migFlow, perComuna:true, order:['mantiene','entrante','ingreso'], colorMap:FLOW_COLOR, years:YEARS10, initial:DEFAULT_COMUNA,
+  overlayKey:'saliente', overlayLabel:'saliente',
+  stat:function(d){ var v=d.saliente; var last=null; for(var i=v.length-1;i>=0;i--){ if(v[i]!=null){last=v[i];break;} } return {value:fmt(last), label:'salientes último año'}; }
+});
+
+makePanel('panel-region',{
+  title:function(c){ return 'Región de origen de las llegadas, '+c; },
+  sub:'Muestra parcial: solo las 5 comunas de origen más frecuentes por año',
+  dataAll:migRegion, perComuna:true, order:['Los Lagos','Otras regiones'], colorMap:REGION_COLOR, years:YEARS10, type:'bar', initial:DEFAULT_COMUNA,
+  stat:function(d){ var l=d['Los Lagos'], o=d['Otras regiones']; var tot=l[l.length-1]+o[o.length-1]; var pct=Math.round(100*o[o.length-1]/tot); return {value:pct+'%', label:'fuera de Los Lagos'}; }
+});
+
+})();
+</script>
