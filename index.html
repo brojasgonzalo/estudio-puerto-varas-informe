@@ -166,7 +166,9 @@ footer .footer-contact a:hover{border-color:currentColor}
 
   <div class="glossary">
     <div class="gterm"><b>Entrada</b><span>Alumno matriculado en el tramo regular de la comuna este a&ntilde;o, que el a&ntilde;o anterior no estaba en ninguna de las 4 comunas. No incluye a quienes reci&eacute;n comienzan 1&deg; b&aacute;sico.</span></div>
-    <div class="gterm"><b>Salida</b><span>Alumno matriculado este a&ntilde;o que no estar&aacute; el a&ntilde;o siguiente en ninguna de las 4 comunas. No incluye a los egresados de 4&deg; medio.</span></div>
+    <div class="gterm"><b>Ingreso 1&deg; b&aacute;sico</b><span>Alumno que comienza 1&deg; b&aacute;sico este a&ntilde;o en la comuna: recien entra al tramo regular, no viene de otra comuna del estudio.</span></div>
+    <div class="gterm"><b>Mantenci&oacute;n</b><span>Alumno matriculado en la comuna tanto este a&ntilde;o como el a&ntilde;o anterior, dentro del tramo regular.</span></div>
+    <div class="gterm"><b>Salida</b><span>Alumno matriculado este a&ntilde;o que no estar&aacute; el a&ntilde;o siguiente en ninguna de las 4 comunas (l&iacute;nea punteada del gr&aacute;fico &ldquo;Se mantiene, entra, ingresa y sale&rdquo;). No incluye a los egresados de 4&deg; medio.</span></div>
     <div class="gterm"><b>Origen</b><span>Comuna de residencia declarada al llegar: la misma del colegio, otra de las 4 comunas del estudio, o fuera de las 4.</span></div>
   </div>
 
@@ -199,7 +201,7 @@ var DEPE_COLOR = {'Municipal':'--c-pv','Part. Subvencionado':'--c-pm','Part. Pag
 var RURAL_COLOR = {'Urbano':'--c-pv','Rural':'--c-os'};
 var ORIGEN_COLOR = {'Misma comuna':'--c-pv','Otra de las 4':'--c-pm','Fuera de las 4':'--c-os'};
 var REGION_COLOR = {'Los Lagos':'--c-pv','Otras regiones':'--c-os'};
-var FLOW_COLOR = {mantiene:'--c-pv',entrante:'--c-pm',ingreso:'--c-fr'};
+var FLOW_COLOR = {'Mantiene':'--c-pv','Entrante':'--c-pm','Ingreso 1° básico':'--c-fr'};
 
 var matriculaTotal = {
   'Puerto Varas': [9665,10024,9937,10192,10098,10821,10979,11555,11766,11734,11715],
@@ -245,10 +247,10 @@ var migOrigen = {
 
 // saliente: valor en la posicion del anio Y = "de los presentes en Y, cuantos ya no estan en Y+1"
 var migFlow = {
-  'Puerto Montt': { mantiene:[39016,39570,40162,40543,41163,41913,41673,42118,42094,41913], entrante:[1630,1630,1819,2050,1816,1607,2597,2243,1999,1975], ingreso:[4088,3919,3700,3595,3675,3767,3908,3873,3552,3484], saliente:[2377,2073,2188,1962,1466,2208,2519,2531,2252,null] },
-  'Frutillar':    { mantiene:[2873,2895,2929,3001,3054,3155,3231,3333,3353,3371], entrante:[234,256,273,251,279,272,360,351,300,277], ingreso:[308,311,311,290,268,295,309,302,300,286], saliente:[273,287,283,257,186,265,317,341,335,null] },
-  'Puerto Varas': { mantiene:[6811,7097,7152,7211,7425,7887,8063,8569,8724,8703], entrante:[595,356,542,411,684,485,680,465,474,524], ingreso:[659,667,720,708,704,742,815,793,716,734], saliente:[492,433,596,389,341,452,455,475,456,null] },
-  'Osorno':       { mantiene:[25298,25252,25367,25490,25516,25794,25365,25317,24936,24508], entrante:[1676,1208,1246,1214,1064,956,1316,1154,1177,1124], ingreso:[2396,2454,2384,2294,2157,2144,2243,2012,1948,1888], saliente:[2053,1533,1511,1454,952,1391,1332,1361,1240,null] }
+  'Puerto Montt': { 'Mantiene':[39016,39570,40162,40543,41163,41913,41673,42118,42094,41913], 'Entrante':[1630,1630,1819,2050,1816,1607,2597,2243,1999,1975], 'Ingreso 1° básico':[4088,3919,3700,3595,3675,3767,3908,3873,3552,3484], 'Saliente':[2377,2073,2188,1962,1466,2208,2519,2531,2252,null] },
+  'Frutillar':    { 'Mantiene':[2873,2895,2929,3001,3054,3155,3231,3333,3353,3371], 'Entrante':[234,256,273,251,279,272,360,351,300,277], 'Ingreso 1° básico':[308,311,311,290,268,295,309,302,300,286], 'Saliente':[273,287,283,257,186,265,317,341,335,null] },
+  'Puerto Varas': { 'Mantiene':[6811,7097,7152,7211,7425,7887,8063,8569,8724,8703], 'Entrante':[595,356,542,411,684,485,680,465,474,524], 'Ingreso 1° básico':[659,667,720,708,704,742,815,793,716,734], 'Saliente':[492,433,596,389,341,452,455,475,456,null] },
+  'Osorno':       { 'Mantiene':[25298,25252,25367,25490,25516,25794,25365,25317,24936,24508], 'Entrante':[1676,1208,1246,1214,1064,956,1316,1154,1177,1124], 'Ingreso 1° básico':[2396,2454,2384,2294,2157,2144,2243,2012,1948,1888], 'Saliente':[2053,1533,1511,1454,952,1391,1332,1361,1240,null] }
 };
 
 var migRegion = {
@@ -602,10 +604,10 @@ makePanel('panel-origen',{
 
 makePanel('panel-flow',{
   title:function(c){ return 'Se mantiene, entra, ingresa y sale, '+c; },
-  sub:'Barras: matrícula del tramo regular · línea punteada: salientes al año siguiente',
-  dataAll:migFlow, perComuna:true, order:['mantiene','entrante','ingreso'], colorMap:FLOW_COLOR, years:YEARS10, initial:DEFAULT_COMUNA,
-  overlayKey:'saliente', overlayLabel:'saliente',
-  stat:function(d){ var v=d.saliente; var last=null; for(var i=v.length-1;i>=0;i--){ if(v[i]!=null){last=v[i];break;} } return {value:fmt(last), label:'salientes último año'}; }
+  sub:'Barras: matrícula del tramo regular por tipo de trayectoria · línea punteada: salientes al año siguiente',
+  dataAll:migFlow, perComuna:true, order:['Mantiene','Entrante','Ingreso 1° básico'], colorMap:FLOW_COLOR, years:YEARS10, initial:DEFAULT_COMUNA,
+  overlayKey:'Saliente', overlayLabel:'Saliente',
+  stat:function(d){ var v=d['Saliente']; var last=null; for(var i=v.length-1;i>=0;i--){ if(v[i]!=null){last=v[i];break;} } return {value:fmt(last), label:'salientes último año'}; }
 });
 
 makePanel('panel-region',{
