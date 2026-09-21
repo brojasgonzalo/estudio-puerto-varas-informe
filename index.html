@@ -571,7 +571,7 @@ var DEFAULT_COMUNA = 'Puerto Varas';
 makePanel('panel-depe',{
   title:function(c){ return 'Matrícula por dependencia, '+c; },
   sub:'SLE reemplaza a Municipal desde 2021 en Frutillar y Puerto Varas',
-  dataAll:depeGeneral, perComuna:true, order:depeOrder, colorMap:DEPE_COLOR, years:YEARS11, type:'area', initial:DEFAULT_COMUNA,
+  dataAll:depeGeneral, perComuna:true, order:depeOrder, colorMap:DEPE_COLOR, years:YEARS11, type:'line', initial:DEFAULT_COMUNA,
   stat:function(d){ var v=d['Part. Pagado']; return {value: fmt(v[v.length-1]), label:'part. pagado 2025'}; }
 });
 
