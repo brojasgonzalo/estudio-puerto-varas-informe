@@ -1294,7 +1294,7 @@ makePanel('panel-region',{
   wrap.appendChild(mapDiv); wrap.appendChild(boxLeft); wrap.appendChild(boxRight);
   mount.appendChild(wrap);
 
-  var map = L.map(mapDiv, {scrollWheelZoom:false, zoomControl:false});
+  var map = L.map(mapDiv, {scrollWheelZoom:true, zoomControl:false});
   L.control.zoom({position:'bottomleft'}).addTo(map);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
