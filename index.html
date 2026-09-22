@@ -123,7 +123,8 @@ footer .footer-contact a:hover{border-color:currentColor}
 .yearbtn[aria-pressed="true"]{background:var(--c-pv);border-color:var(--c-pv);color:#fff}
 .mapwrap{position:relative;margin-top:4px}
 #leafletmap{height:520px;width:100%;border-radius:2px;border:1px solid var(--line);background:var(--surface-2)}
-.leaflet-tooltip{font-family:"IBM Plex Sans",sans-serif;font-size:12px}
+.leaflet-tooltip{font-family:"IBM Plex Sans",sans-serif;font-size:12px;max-width:240px;white-space:normal;line-height:1.5}
+.leaflet-tooltip .tt-label{color:var(--ink-3);font-size:10.5px;text-transform:uppercase;letter-spacing:.03em}
 .mapoverlay{position:absolute;z-index:500;background:color-mix(in srgb, var(--surface) 90%, transparent);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border:1px solid var(--line);border-radius:2px;padding:10px 13px;font-size:12px;box-shadow:var(--shadow);width:210px}
 .mapoverlay.topleft{top:10px;left:10px}
 .mapoverlay.topright{top:10px;right:10px}
@@ -1319,6 +1320,18 @@ makePanel('panel-region',{
       });
     });
   }
+  function top3Line(list){
+    if(!list || !list.length) return 'sin casos';
+    return list.slice(0,3).map(function(o){ return o.c+' ('+o.n+')'; }).join(', ');
+  }
+  function tooltipHtml(c){
+    var orig = (estabOrigenTop5[c.rbd] && estabOrigenTop5[c.rbd][anioSel]) || [];
+    var destDisponible = YEARS11.slice(0,10).indexOf(anioSel)>=0;
+    var dest = (estabDestinoTop5[c.rbd] && estabDestinoTop5[c.rbd][anioSel]) || [];
+    return '<b>'+c.n+'</b><br>'+c.d+(c.m!=null?(' · Matrícula '+anioSel+': '+fmt(c.m)):' · Sin matrícula registrada')+
+      '<br><span class="tt-label">Entran de:</span> '+top3Line(orig)+
+      '<br><span class="tt-label">Salen a:</span> '+(destDisponible?top3Line(dest):'sin dato 2025');
+  }
 
   function render(){
     h3.textContent = 'Colegios y migración, ' + comunaSel;
@@ -1332,7 +1345,7 @@ makePanel('panel-region',{
       var r = c.m ? Math.max(4, Math.min(22, Math.sqrt(c.m)*0.9)) : 4;
       var color = 'var('+(DEPE_COLOR[c.d]||'--ink-3')+')';
       var mk = L.circleMarker([c.lat,c.lon], {radius:r, color:color, fillColor:color, fillOpacity:.6, weight:1.6, opacity:.9});
-      mk.bindTooltip('<b>'+c.n+'</b><br>'+c.d+(c.m!=null?('<br>Matrícula '+anioSel+': '+fmt(c.m)):'<br>Sin matrícula registrada'));
+      mk.bindTooltip(tooltipHtml(c));
       mk.addTo(markersLayer);
     });
     if(selectedRbd!=null && cols.length===1){ map.setView([cols[0].lat,cols[0].lon], Math.max(COMUNA_ZOOM[comunaSel],14)); }
