@@ -1337,9 +1337,9 @@ makePanel('panel-region',{
       '<div class="tt-row"><span class="tt-label">Salen a</span>'+(destDisponible?top3Line(dest):'sin dato 2025')+'</div>';
   }
 
+  var lastCentered = null; // evita recentrar/rezoomear el mapa cuando solo cambia un filtro (leyenda, año)
   function render(){
     h3.textContent = 'Colegios y migración, ' + comunaSel;
-    map.setView(COMUNA_CENTER[comunaSel], COMUNA_ZOOM[comunaSel]);
     markersLayer.clearLayers();
     var cols = (colegiosGeo[comunaSel] && colegiosGeo[comunaSel][anioSel]) || [];
     cols = cols.filter(function(c){ return !hiddenDepe[c.d]; });
@@ -1352,7 +1352,13 @@ makePanel('panel-region',{
       mk.bindTooltip(tooltipHtml(c));
       mk.addTo(markersLayer);
     });
-    if(selectedRbd!=null && cols.length===1){ map.setView([cols[0].lat,cols[0].lon], Math.max(COMUNA_ZOOM[comunaSel],14)); }
+    // solo recentra el mapa cuando cambia la comuna o se aisla/deja de aislar un colegio, no en cada filtro de leyenda o cambio de año
+    var centerKey = comunaSel+'|'+selectedRbd;
+    if(centerKey !== lastCentered){
+      if(selectedRbd!=null && cols.length===1){ map.setView([cols[0].lat,cols[0].lon], Math.max(COMUNA_ZOOM[comunaSel],14)); }
+      else { map.setView(COMUNA_CENTER[comunaSel], COMUNA_ZOOM[comunaSel]); }
+      lastCentered = centerKey;
+    }
 
     var idx = YEARS11.indexOf(anioSel);
     var flow = migFlow[comunaSel];
