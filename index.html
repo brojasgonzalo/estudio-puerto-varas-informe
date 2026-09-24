@@ -668,7 +668,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   --bg:#f2f3f2; --surface:#ffffff; --surface-2:#eceeed; --surface-3:#e2e5e4;
   --ink:#1a1f1c; --ink-2:#525b56; --ink-3:#828b85;
   --line:#d6dad7; --line-2:#e6e9e7;
-  --c-pv:#1f5490; --c-pm:#0d8f6e; --c-fr:#8a6ad4; --c-os:#a14a72;
+  --c-pv:#1f5490; --c-pm:#0d8f6e; --c-fr:#8a6ad4; --c-os:#a14a72; --c-extra:#d9861f;
   --shadow: 2px 2px 0 rgba(26,31,28,.06);
   --shadow-hover: 3px 3px 0 rgba(26,31,28,.10);
   color-scheme: light;
@@ -678,7 +678,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     --bg:#1c1f1e; --surface:#242827; --surface-2:#2b302e; --surface-3:#343a38;
     --ink:#eef0ee; --ink-2:#b3bab5; --ink-3:#818985;
     --line:#3a413e; --line-2:#323835;
-    --c-pv:#6aa0dd; --c-pm:#3bbd97; --c-fr:#ac96e6; --c-os:#d68cae;
+    --c-pv:#6aa0dd; --c-pm:#3bbd97; --c-fr:#ac96e6; --c-os:#d68cae; --c-extra:#f0a94e;
     --shadow: 2px 2px 0 rgba(0,0,0,.22);
     --shadow-hover: 3px 3px 0 rgba(0,0,0,.3);
     color-scheme: dark;
@@ -688,7 +688,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
   --bg:#1c1f1e; --surface:#242827; --surface-2:#2b302e; --surface-3:#343a38;
   --ink:#eef0ee; --ink-2:#b3bab5; --ink-3:#818985;
   --line:#3a413e; --line-2:#323835;
-  --c-pv:#6aa0dd; --c-pm:#3bbd97; --c-fr:#ac96e6; --c-os:#d68cae;
+  --c-pv:#6aa0dd; --c-pm:#3bbd97; --c-fr:#ac96e6; --c-os:#d68cae; --c-extra:#f0a94e;
   --shadow: 2px 2px 0 rgba(0,0,0,.22);
   --shadow-hover: 3px 3px 0 rgba(0,0,0,.3);
   color-scheme: dark;
@@ -717,7 +717,7 @@ nav.sect a:hover{background:var(--surface-2);color:var(--ink)}
 .sectionhead .num{font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:600;color:var(--c-pv);padding-top:10px;flex:none}
 .sectionhead h2{font-size:24px;padding-top:8px}
 section{padding-block:0 40px}
-section .lede{color:var(--ink-2);font-size:14.5px;max-width:74ch;line-height:1.6;margin:10px 0 24px}
+section .lede{color:var(--ink-2);font-size:14.5px;line-height:1.6;margin:10px 0 24px;text-align:justify}
 
 .glossary{display:flex;gap:0;flex-wrap:wrap;border:1px solid var(--line);border-radius:2px;background:var(--surface);margin-bottom:26px;overflow:hidden}
 .glossary .gterm{flex:1 1 220px;padding:13px 16px;border-left:1px solid var(--line)}
@@ -787,6 +787,9 @@ footer .footer-contact a:hover{border-color:currentColor}
 .leaflet-tooltip{font-family:"IBM Plex Sans",sans-serif;font-size:12px;width:260px;white-space:normal;line-height:1.45;text-align:left;padding:9px 11px}
 .leaflet-tooltip .tt-title{font-weight:700;display:block;margin-bottom:2px}
 .leaflet-tooltip .tt-sub{color:var(--ink-3);font-size:11px;display:block;margin-bottom:6px}
+.leaflet-tooltip .tt-matric{display:flex;align-items:baseline;gap:6px;margin:1px 0 7px}
+.leaflet-tooltip .tt-matric b{font-family:"IBM Plex Mono",monospace;font-size:20px;font-weight:700;color:var(--ink)}
+.leaflet-tooltip .tt-matric i{font-style:normal;font-size:10.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em}
 .leaflet-tooltip .tt-row{margin-top:4px}
 .leaflet-tooltip .tt-label{color:var(--ink-3);font-size:10px;text-transform:uppercase;letter-spacing:.03em;display:block;margin-bottom:1px}
 .mapoverlay{position:absolute;z-index:500;background:color-mix(in srgb, var(--surface) 90%, transparent);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border:1px solid var(--line);border-radius:2px;padding:10px 13px;font-size:12px;box-shadow:var(--shadow);width:210px}
@@ -832,16 +835,12 @@ footer .footer-contact a:hover{border-color:currentColor}
 .acc-body .subtle{color:var(--ink-3);font-size:11px;margin-top:8px;line-height:1.45}
 .extra-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:2px 0 4px}
 .extra-row .extra-lbl{font-size:11px;color:var(--ink-3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;margin-right:2px}
-.extra-legend-item{border:1.5px dashed var(--ink-3);background:transparent;color:var(--ink-2);font-family:inherit;font-size:12px;font-weight:500;padding:4px 9px;border-radius:2px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:border-color .15s ease,color .15s ease,background .15s ease}
-.extra-legend-item:hover{border-color:var(--ink-2);color:var(--ink)}
-.extra-legend-item .sq{width:9px;height:9px;border-radius:1px;display:inline-block;flex:none;background:transparent;border:1.5px solid var(--ink-3)}
-.extra-legend-item[aria-pressed="true"]{background:var(--ink-2);border-style:solid;border-color:var(--ink-2);color:var(--surface)}
-.extra-legend-item[aria-pressed="true"] .sq{background:var(--surface);border-color:var(--surface)}
-.extra-hint{font-size:11.5px;color:var(--ink-3);line-height:1.4;flex-basis:100%;margin-top:2px}
-.total-callout{margin-top:10px;padding:11px 16px;border:1.5px solid var(--c-pv);border-radius:2px;background:color-mix(in srgb, var(--c-pv) 9%, var(--surface));display:flex;align-items:baseline;gap:11px;flex-wrap:wrap}
-.total-callout .tc-num{font-family:"IBM Plex Mono",monospace;font-size:24px;font-weight:700;color:var(--c-pv);line-height:1}
-.total-callout .tc-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-2);font-weight:600}
-.total-callout .tc-sub{font-size:11.5px;color:var(--ink-3);flex-basis:100%}
+.extra-legend-item{border:1.5px dashed var(--c-extra);background:transparent;color:var(--ink-2);font-family:inherit;font-size:12px;font-weight:500;padding:4px 9px;border-radius:2px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:border-color .15s ease,color .15s ease,background .15s ease}
+.extra-legend-item:hover{border-color:var(--c-extra);color:var(--ink)}
+.extra-legend-item .sq{width:9px;height:9px;border-radius:1px;display:inline-block;flex:none;background:transparent;border:1.5px solid var(--c-extra)}
+.extra-legend-item[aria-pressed="true"]{background:var(--c-extra);border-style:solid;border-color:var(--c-extra);color:#fff}
+.extra-legend-item[aria-pressed="true"] .sq{background:#fff;border-color:#fff}
+.extra-hint{font-size:11.5px;color:var(--ink-3);line-height:1.4;flex-basis:100%;margin-top:2px;font-style:italic}
 .tbl-wrap{max-height:420px;overflow:auto;border:1px solid var(--line)}
 table.clist{width:100%;border-collapse:collapse;font-size:12px}
 .clist th{position:sticky;top:0;z-index:2;background:var(--surface-2);text-align:left;font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);padding:7px 8px;cursor:pointer;white-space:nowrap;border-bottom:1px solid var(--line)}
@@ -860,7 +859,7 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
 .info-tip{display:none;position:absolute;left:-8px;top:calc(100% + 6px);width:240px;z-index:900;background:var(--surface);color:var(--ink);border:1px solid var(--ink-3);padding:9px 11px;border-radius:2px;font:500 11.5px/1.5 "IBM Plex Sans",sans-serif;text-align:left;box-shadow:0 4px 14px rgba(0,0,0,.28);white-space:normal;font-variant-numeric:normal}
 .info-i:hover .info-tip,.info-i:focus .info-tip{display:block}
 .clist .info-tip{left:auto;right:-8px}
-.depe-note{margin:14px 0 0;padding:9px 12px;border:1px solid var(--line);border-radius:2px;background:var(--surface);color:var(--ink-2);font-size:12px;line-height:1.55;text-align:justify}
+.depe-note{margin:14px 0 0;padding:9px 12px;border:1px solid var(--line);border-radius:2px;background:var(--surface);color:var(--ink-2);font-size:12px;line-height:1.55;text-align:justify;font-style:italic}
 #leafletmap.nobase{background:var(--surface-2)}
 .refname{background:transparent!important;border:none!important;box-shadow:none!important;color:var(--ink-3)!important;font:600 10.5px "IBM Plex Sans",sans-serif!important;padding:0 2px!important}
 .refname:before{display:none!important}
@@ -2034,7 +2033,7 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
   var extraRow = heln('div',{class:'extra-row'});
   var extraLbl = heln('span',{class:'extra-lbl'}); extraLbl.textContent = 'Incluir también:'; extraRow.appendChild(extraLbl);
   var extraCats = {};
-  var EXTRA_DEF = [['Especial','Educación especial'],['Parvularia','Educación parvularia'],['Adultos','Educación de adultos']];
+  var EXTRA_DEF = [['Especial','Educación especial'],['Parvularia','Educación parvularia']];
   var extraBtns = {};
   EXTRA_DEF.forEach(function(p){
     var b = heln('button',{class:'extra-legend-item',type:'button','aria-pressed':'false'});
@@ -2053,9 +2052,6 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
   var boxRight = heln('div',{class:'mapoverlay topright'});
   wrap.appendChild(mapDiv); wrap.appendChild(boxLeft); wrap.appendChild(boxRight);
   mount.appendChild(wrap);
-
-  var totalCallout = heln('div',{class:'total-callout'});
-  mount.appendChild(totalCallout);
 
   var accWrap = heln('div',{class:'acc-wrap'});
   var accList = heln('details',{class:'acc',open:''});
@@ -2128,8 +2124,10 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
     var orig = (estabOrigenTop5[c.rbd] && estabOrigenTop5[c.rbd][anioSel]) || [];
     var destDisponible = YEARS11.slice(0,10).indexOf(anioSel)>=0;
     var dest = (estabDestinoTop5[c.rbd] && estabDestinoTop5[c.rbd][anioSel]) || [];
+    var matHtml = c.m!=null ? '<span class="tt-matric"><b>'+fmt(c.m)+'</b><i>alumnos, '+anioSel+'</i></span>' : '<span class="tt-sub">Sin matrícula registrada</span>';
     return '<span class="tt-title">'+c.n+'</span>'+
-      '<span class="tt-sub">'+c.d+(c.r===0?' ('+c.t.toLowerCase()+')':'')+(c.m!=null?(' · Matrícula '+anioSel+': '+fmt(c.m)):' · Sin matrícula registrada')+'</span>'+
+      '<span class="tt-sub">'+c.d+(c.r===0?' ('+c.t.toLowerCase()+')':'')+'</span>'+
+      matHtml+
       '<div class="tt-row"><span class="tt-label">Entran de</span>'+top3Line(orig)+'</div>'+
       '<div class="tt-row"><span class="tt-label">Salen a</span>'+(destDisponible?top3Line(dest):'sin dato 2025')+'</div>';
   }
@@ -2145,7 +2143,7 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
     // los colegios mas chicos se agregan al final (quedan arriba en el mapa) para que los circulos grandes no los tapen por completo
     colsMapa.slice().sort(function(a,b){ return (b.m||0)-(a.m||0); }).forEach(function(c){
       var r = c.m ? Math.max(4, Math.min(22, Math.sqrt(c.m)*0.9)) : 4;
-      var color = 'var('+(DEPE_COLOR[c.d]||'--ink-3')+')';
+      var color = c.r===0 ? 'var(--c-extra)' : 'var('+(DEPE_COLOR[c.d]||'--ink-3')+')';
       var mk = L.circleMarker([c.lat,c.lon], {radius:r, color:color, fillColor:color, fillOpacity:.6, weight:1.6, opacity:.9});
       mk.bindTooltip(tooltipHtml(c));
       mk.addTo(markersLayer);
@@ -2171,6 +2169,7 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
     var balanceTitle = activeDepes.length===depeOrder.length ? 'Balance '+anioSel
       : (activeDepes.length ? 'Balance '+anioSel+' · '+activeDepes.join(', ') : 'Balance '+anioSel+' · sin dependencias seleccionadas');
     boxLeft.innerHTML = '<h4>'+balanceTitle+'</h4>'+
+      '<div class="mapstat"><span>Establecimientos</span><b>'+colsAll.length+'</b></div>'+
       '<div class="mapstat"><span>Entradas'+infoIcon('ent')+'</span><b>'+fmt(sumDepeMetric('Entrante'))+'</b></div>'+
       '<div class="mapstat"><span>Ingreso 1° básico'+infoIcon('ing')+'</span><b>'+fmt(sumDepeMetric('Ingreso 1° básico'))+'</b></div>'+
       '<div class="mapstat"><span>Se mantienen'+infoIcon('mant')+'</span><b>'+fmt(sumDepeMetric('Mantiene'))+'</b></div>'+
@@ -2228,12 +2227,6 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
       b.lastChild.textContent = ' '+p[1]+' ('+(nEx[p[0]]||0)+')';
     });
 
-    // ---- señal de total, cambia con los filtros
-    var nTotal = colsAll.length;
-    var nFiltrosExtra = Object.keys(extraCats).filter(function(k){ return extraCats[k]; }).length;
-    totalCallout.innerHTML = '<span class="tc-num">'+nTotal+'</span><span class="tc-lbl">Total establecimientos</span>'+
-      '<span class="tc-sub">'+comunaSel+', '+anioSel+(activeDepes.length<depeOrder.length?' · '+(activeDepes.length?activeDepes.join(', '):'sin dependencias seleccionadas'):'')+(nFiltrosExtra?' · incluye '+Object.keys(extraCats).filter(function(k){return extraCats[k];}).join(', ').toLowerCase():'')+'</span>';
-
     // ---- acordeon: lista de colegios
     var arr = colsAll.slice().sort(function(a,b){
       var x=a[sortKey], y=b[sortKey];
@@ -2241,7 +2234,7 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
       if(typeof x==='string') return sortDir*x.localeCompare(y,'es');
       return sortDir*(x-y);
     });
-    accListSum.textContent = 'Ver lista de colegios ('+arr.length+')';
+    accListSum.textContent = 'Ver detalle de establecimientos ('+arr.length+')';
     var cols_def = [['n','Colegio',''],['d','Dependencia',''],['m','Matrícula','num'],['e','Entran','num','ent'],['i','Ingresan 1° básico','num','ing'],['k','Se mantienen','num','mant'],['s','Salen','num','sal']];
     var th = cols_def.map(function(c){
       return '<th class="'+c[2]+(sortKey===c[0]?' on':'')+'" data-k="'+c[0]+'">'+c[1]+(c[3]?infoIcon(c[3]):'')+(sortKey===c[0]?(sortDir<0?' &#9662;':' &#9652;'):'')+'</th>';
