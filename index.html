@@ -863,6 +863,28 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
 #leafletmap.nobase{background:var(--surface-2)}
 .refname{background:transparent!important;border:none!important;box-shadow:none!important;color:var(--ink-3)!important;font:600 10.5px "IBM Plex Sans",sans-serif!important;padding:0 2px!important}
 .refname:before{display:none!important}
+.maptabs{display:flex;flex-wrap:wrap;margin:4px 0 18px;border-bottom:1.5px solid var(--line)}
+.maptab{border:1.5px solid var(--line);border-bottom:none;background:var(--surface-2);color:var(--ink-3);font:600 12.5px "IBM Plex Mono",monospace;padding:9px 16px;cursor:pointer;margin:0 -1.5px -1.5px 0;border-radius:2px 2px 0 0;transition:color .15s ease,background .15s ease}
+.maptab:hover{color:var(--ink)}
+.maptab[aria-selected="true"]{background:var(--bg);color:var(--c-pv);box-shadow:inset 0 3px 0 var(--c-pv)}
+.maptab:focus-visible{outline:2px solid var(--c-pv);outline-offset:-2px}
+.tabpane[hidden]{display:none}
+#censomap{height:560px;width:100%;border-radius:2px;border:1px solid var(--line);background:var(--surface-2)}
+.censo-legend .legrow{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--ink-2);padding:1.5px 0}
+.censo-legend .legrow i{width:14px;height:11px;border-radius:1px;flex:none;border:1px solid rgba(0,0,0,.08)}
+.censo-legend .legnote{font-size:10.5px;color:var(--ink-3);margin-top:7px;line-height:1.45}
+.censo-vars{max-height:520px;overflow:auto;width:230px}
+.censo-vars .vgrp{font-size:9.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-3);font-family:"IBM Plex Mono",monospace;font-weight:600;margin:9px 0 3px}
+.censo-vars .vgrp:first-of-type{margin-top:0}
+.varbtn{display:block;width:100%;text-align:left;border:1.5px solid transparent;background:transparent;color:var(--ink-2);font:500 12px "IBM Plex Sans",sans-serif;padding:3px 7px;border-radius:2px;cursor:pointer;margin:1px 0}
+.varbtn:hover{border-color:var(--line);color:var(--ink)}
+.varbtn[aria-pressed="true"]{background:var(--c-extra);border-color:var(--c-extra);color:#fff;font-weight:600}
+.censo-loading{padding:40px 14px;color:var(--ink-3);font-size:12.5px}
+.leaflet-tooltip .tt-grid{display:grid;grid-template-columns:1fr auto;gap:1px 10px;margin-top:6px;font-size:11.5px;color:#525b56}
+.leaflet-tooltip .tt-grid b{font-family:"IBM Plex Mono",monospace;font-weight:600;color:#181d1a;text-align:right}
+.leaflet-tooltip .tt-grid .on{color:#181d1a;font-weight:700}
+.leaflet-tooltip .tt-warn{margin-top:6px;font-size:10.5px;color:#b36b10}
+@media (max-width:760px){ #censomap{height:420px} .censo-vars{width:auto;max-height:none} }
 .nobase-note{position:absolute;left:58px;bottom:10px;z-index:450;background:var(--surface);border:1px solid var(--line);padding:5px 9px;font-size:11px;color:var(--ink-3);border-radius:2px;max-width:55%}
 </style>
 
@@ -889,7 +911,7 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
     <a href="#general">General</a>
     <a href="#establecimientos">Establecimientos</a>
     <a href="#migracion">Migraci&oacute;n</a>
-    <a href="#mapa">Mapa</a>
+    <a href="#mapa">Mapas</a>
   </nav>
 </div>
 
@@ -932,10 +954,22 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
 </section>
 
 <section id="mapa">
-  <div class="sectionhead"><span class="num">04</span><h2>Mapa de colegios y migraci&oacute;n</h2></div>
-  <p class="lede">Cada punto es un colegio con matr&iacute;cula ese a&ntilde;o (radio proporcional a la matr&iacute;cula, color por dependencia). Cambia de comuna y de a&ntilde;o para ver la oferta educativa y el balance de entradas, salidas y mantenci&oacute;n en ese momento.</p>
-  <div class="grid">
-    <div class="card mapcard" id="panel-mapa"></div>
+  <div class="sectionhead"><span class="num">04</span><h2>Mapas</h2></div>
+  <div class="maptabs" role="tablist">
+    <button class="maptab" type="button" role="tab" id="tab-colegios" aria-controls="pane-colegios" aria-selected="true">Colegios y migraci&oacute;n</button>
+    <button class="maptab" type="button" role="tab" id="tab-censo" aria-controls="pane-censo" aria-selected="false">Caracterizaci&oacute;n Censo 2024</button>
+  </div>
+  <div class="tabpane" id="pane-colegios" role="tabpanel" aria-labelledby="tab-colegios">
+    <p class="lede">Cada punto es un colegio con matr&iacute;cula ese a&ntilde;o (radio proporcional a la matr&iacute;cula, color por dependencia). Cambia de comuna y de a&ntilde;o para ver la oferta educativa y el balance de entradas, salidas y mantenci&oacute;n en ese momento.</p>
+    <div class="grid">
+      <div class="card mapcard" id="panel-mapa"></div>
+    </div>
+  </div>
+  <div class="tabpane" id="pane-censo" role="tabpanel" aria-labelledby="tab-censo" hidden>
+    <p class="lede">Cada pol&iacute;gono es una manzana urbana o una entidad rural del Censo 2024, con los datos que publica el INE a ese nivel. Elige un indicador en el cuadro de la derecha y pasa el cursor sobre una manzana para ver su detalle. Los colores dividen las manzanas de la comuna elegida en cinco grupos con m&aacute;s o menos la misma cantidad de manzanas (menos grupos si muchas tienen el mismo valor).</p>
+    <div class="grid">
+      <div class="card mapcard" id="panel-censo"></div>
+    </div>
   </div>
 </section>
 
@@ -2258,6 +2292,13 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
   }
 
   render();
+  // la pestaña del censo lee y fija la comuna de este mapa, para que ambas pestañas muestren la misma
+  window.pvMapaColegios = {
+    comuna: function(){ return comunaSel; },
+    setComuna: function(c){ if(c!==comunaSel && comunaBtns[c]) comunaBtns[c].click(); },
+    // al volver a mostrarse: leaflet mide de nuevo el contenedor y se recentra en la comuna
+    refresh: function(){ map.invalidateSize(); lastCentered = null; render(); }
+  };
   // el contenedor recien se pinta al agregarlo al DOM; leaflet necesita recalcular tamaño despues
   setTimeout(function(){ map.invalidateSize(); }, 60);
 })();
@@ -2273,6 +2314,241 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
   if(m){
     var p2 = document.createElement('p'); p2.className = 'depe-note'; p2.innerHTML = txt + ' Cada colegio se muestra con la dependencia que tenía en el año seleccionado.'; m.appendChild(p2);
     var p3 = document.createElement('p'); p3.className = 'depe-note'; p3.innerHTML = txtExtra; m.appendChild(p3);
+  }
+})();
+
+// ================= pestañas del mapa + mapa Censo 2024 por manzana =================
+(function(){
+  var tabs = {colegios: document.getElementById('tab-colegios'), censo: document.getElementById('tab-censo')};
+  var panes = {colegios: document.getElementById('pane-colegios'), censo: document.getElementById('pane-censo')};
+  if(!tabs.censo) return;
+  var censo = null; // se arma recién la primera vez que se abre la pestaña (los datos pesan ~3 MB)
+
+  function abrir(k){
+    Object.keys(tabs).forEach(function(t){
+      tabs[t].setAttribute('aria-selected', t===k ? 'true' : 'false');
+      panes[t].hidden = t!==k;
+    });
+    // leaflet no mide bien un mapa oculto: se sincroniza la comuna recién con la pestaña ya visible
+    var col = window.pvMapaColegios;
+    setTimeout(function(){
+      if(k==='censo'){
+        if(!censo) censo = armarCenso(col ? col.comuna() : DEFAULT_COMUNA);
+        else censo.refresh(col ? col.comuna() : null);
+      } else if(col){
+        if(censo) col.setComuna(censo.comuna());
+        col.refresh();
+      }
+    }, 0);
+  }
+  tabs.colegios.addEventListener('click', function(){ abrir('colegios'); });
+  tabs.censo.addEventListener('click', function(){ abrir('censo'); });
+
+  function armarCenso(comunaIni){
+    var mount = document.getElementById('panel-censo');
+    if(typeof L === 'undefined'){ mount.innerHTML = '<div class="censo-loading">No se pudo cargar la librería del mapa en este visor.</div>'; return null; }
+
+    // índice en el arreglo v de cada polígono: 0 personas, 1 viviendas particulares, luego los indicadores.
+    // Para agregar indicadores: sumarlos en prep_manzanas_censo.py y listarlos aquí con su grupo.
+    var VARS = [
+      {k:2, g:'Educación', n:'Escolaridad promedio', u:' años', d:'Años de escolaridad promedio de las personas de 18 años o más.'},
+      {k:3, g:'Educación', n:'Educación superior', u:'%', d:'Personas con educación terciaria, maestría o doctorado, sobre las personas de 18 años o más.'},
+      {k:4, g:'Trabajo', n:'Directivos y profesionales', u:'%', d:'Ocupados como directores, gerentes o profesionales (CIUO 1 y 2), sobre el total de ocupados.'},
+      {k:6, g:'Población', n:'Inmigrantes', u:'%', d:'Personas nacidas fuera de Chile, sobre el total de personas. Muy afectado por la supresión del INE.'},
+      {k:7, g:'Población', n:'60 años o más', u:'%', d:'Personas de 60 años o más, sobre el total de personas.'},
+      {k:8, g:'Hogares', n:'Hogares que arriendan', u:'%', d:'Hogares que arriendan su vivienda, con o sin contrato, sobre el total de hogares.'},
+      {k:5, g:'Vivienda', n:'Viviendas desocupadas', u:'%', d:'Viviendas particulares desocupadas (en venta, arriendo, temporada u otro motivo), sobre el total de viviendas particulares.'}
+    ];
+    var RAMP = ['#fdebd3','#f8c88e','#ee9f4c','#cf6e1d','#94450a'];
+    var NODATA = '#b4bab6'; // gris fijo: se tiene que ver igual en tema claro y oscuro
+    var st = {comuna: comunaIni, v: VARS[0], colegios: false, rural: true};
+    var css = function(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); };
+    var num = function(x,u){ return x.toFixed(1).replace('.',',') + u; };
+
+    // ---- encabezado y controles (mismo lenguaje visual que el mapa de colegios)
+    var head = heln('div',{class:'card-head'});
+    var tw = heln('div'); var h3 = heln('h3'); tw.appendChild(h3);
+    var sub = heln('div',{class:'sub'}); sub.textContent = 'Manzanas urbanas y entidades rurales (INE)'; tw.appendChild(sub);
+    head.appendChild(tw); mount.appendChild(head);
+
+    var comunaRow = heln('div',{class:'switcher'}), comunaBtns = {};
+    COMUNAS.forEach(function(c){
+      var b = heln('button',{class:'pillmini',type:'button'});
+      b.style.setProperty('--dotc','var('+COMUNA_COLOR[c]+')');
+      b.appendChild(heln('span',{class:'dot'})); b.appendChild(document.createTextNode(c));
+      b.addEventListener('click', function(){ if(st.comuna!==c){ st.comuna=c; render(true); } });
+      comunaBtns[c]=b; comunaRow.appendChild(b);
+    });
+    mount.appendChild(comunaRow);
+
+    var capasRow = heln('div',{class:'map-legend'});
+    function toggle(label, key){
+      var b = heln('button',{class:'map-legend-item',type:'button'});
+      b.style.setProperty('--dotc','var(--ink-2)');
+      b.appendChild(heln('span',{class:'sq'})); b.appendChild(document.createTextNode(label));
+      b.addEventListener('click', function(){ st[key] = !st[key]; render(false); });
+      capasRow.appendChild(b); return b;
+    }
+    var bRur = toggle('Entidades rurales','rural');
+    var bCol = toggle('Colegios 2025','colegios');
+    var hint = heln('span',{class:'map-legend-hint'}); hint.textContent = '*Capas opcionales sobre el mapa'; capasRow.appendChild(hint);
+    mount.appendChild(capasRow);
+
+    var wrap = heln('div',{class:'mapwrap'});
+    var mapDiv = heln('div',{id:'censomap'});
+    var boxLeft = heln('div',{class:'mapoverlay topleft censo-legend'});
+    var boxRight = heln('div',{class:'mapoverlay topright censo-vars'});
+    wrap.appendChild(mapDiv); wrap.appendChild(boxLeft); wrap.appendChild(boxRight);
+    mount.appendChild(wrap);
+    var loading = heln('div',{class:'censo-loading'}); loading.textContent = 'Cargando manzanas del Censo 2024…';
+    mapDiv.appendChild(loading);
+
+    var notas = heln('p',{class:'depe-note'});
+    notas.innerHTML = '<b>Sobre los datos del Censo.</b> Fuente: cartografía censal y base manzana-entidad del Censo de Población y Vivienda 2024 (INE). '+
+      'El INE oculta las cifras de personas con menos de 4 casos por manzana (afecta sobre todo a inmigrantes); esas manzanas aparecen en gris, no como cero. Los datos de hogares y viviendas no se suprimen. '+
+      'Las manzanas con 1 a 3 viviendas ocupadas fueron unidas por el INE con una vecina. Los límites de las entidades rurales son polígonos de Thiessen trazados por el INE alrededor de las viviendas censadas: son una referencia estadística, no límites reales en terreno. '+
+      'Las personas en situación de calle y de operativos especiales solo están a nivel comunal y no aparecen en el mapa. En manzanas con pocos habitantes un porcentaje cambia mucho con una o dos personas; el detalle avisa cuando la manzana tiene menos de 20 personas. '+
+      'Los colegios son los mismos del mapa de colegios, año 2025, tramo regular.';
+    mount.appendChild(notas);
+
+    // ---- selector de indicadores (cuadro superior derecho), agrupado
+    var varBtns = [];
+    function armarVars(){
+      var h = '<h4>Indicador</h4>', g = null;
+      VARS.forEach(function(v,i){
+        if(v.g!==g){ g=v.g; h += '<div class="vgrp">'+g+'</div>'; }
+        h += '<button type="button" class="varbtn" data-i="'+i+'">'+v.n+'</button>';
+      });
+      boxRight.innerHTML = h;
+      boxRight.querySelectorAll('.varbtn').forEach(function(b){
+        varBtns.push(b);
+        b.addEventListener('click', function(){ st.v = VARS[+b.getAttribute('data-i')]; render(false); });
+      });
+    }
+    armarVars();
+
+    var map = null, capaPol = null, capaCol = null, breaks = [];
+    function quintiles(vals){
+      vals = vals.slice().sort(function(a,b){ return a-b; });
+      var q = [];
+      for(var i=1;i<5;i++){ var x = vals[Math.floor(i*vals.length/5)]; if(x!==undefined && x>vals[0] && q.indexOf(x)<0) q.push(x); }
+      return q;
+    }
+    // con valores repetidos puede haber menos de 5 tramos: se reparten a lo largo de la rampa
+    function rampa(i){ var n = breaks.length+1; return RAMP[n===1 ? 2 : Math.round(i*4/(n-1))]; }
+    function colorDe(x){
+      if(x===null || x===undefined) return null;
+      for(var i=0;i<breaks.length;i++){ if(x < breaks[i]) return rampa(i); }
+      return rampa(breaks.length);
+    }
+    function estilo(r, activo){
+      var c = colorDe(r.v[st.v.k]);
+      return {color: activo ? '#1a1f1c' : (r.t==='E' ? '#6b726e' : '#ffffff'), weight: activo ? 2.5 : (r.t==='E' ? .8 : .6),
+              // las entidades rurales son polígonos grandes: van más translúcidas para que no tapen la ciudad
+              fillColor: c || NODATA, fillOpacity: (c ? .8 : .6) * (r.t==='E' ? .6 : 1), dashArray: r.t==='E' ? '3 2' : null};
+    }
+    function tooltip(r){
+      var h = '<span class="tt-title">'+(r.t==='M' ? 'Manzana' : 'Entidad rural')+' · '+r.nom+'</span>'+
+        '<span class="tt-sub">'+fmt(r.v[0])+' personas · '+fmt(r.v[1])+' viviendas particulares</span><div class="tt-grid">';
+      VARS.forEach(function(v){
+        var x = r.v[v.k], cls = v===st.v ? ' class="on"' : '';
+        h += '<span'+cls+'>'+v.n+'</span><b>'+(x===null || x===undefined ? '<span style="color:#7b8580;font-weight:500">suprimido</span>' : num(x,v.u))+'</b>';
+      });
+      h += '</div>';
+      if(r.v[0] < 20) h += '<div class="tt-warn">Menos de 20 personas: los porcentajes son poco estables.</div>';
+      return h;
+    }
+    function leyenda(nulos, total){
+      var v = st.v, h = '<h4>'+v.n+'</h4>', u = v.u===' años' ? ' años' : '%';
+      var f = function(x){ return x.toFixed(1).replace('.',','); };
+      for(var i=0;i<=breaks.length;i++){
+        var a = i===0 ? null : breaks[i-1], b = i<breaks.length ? breaks[i] : null;
+        var t = a===null ? (b===null ? 'todas iguales' : 'menos de '+f(b)) : (b===null ? f(a)+' o más' : f(a)+' a menos de '+f(b));
+        h += '<div class="legrow"><i style="background:'+rampa(i)+'"></i>'+t+u+'</div>';
+      }
+      h += '<div class="legrow"><i style="background:'+NODATA+'"></i>Sin dato o suprimido ('+fmt(nulos)+' de '+fmt(total)+')</div>';
+      h += '<div class="legnote">'+v.d+' Tramos calculados dentro de '+st.comuna+'.'+(st.rural ? ' Las entidades rurales van con color más tenue.' : '')+'</div>';
+      if(st.colegios){
+        h += '<div class="legnote" style="color:var(--ink-2);font-weight:600;margin-top:9px">Colegios 2025</div>';
+        depeOrder.forEach(function(d){ h += '<div class="legrow"><i style="background:var('+DEPE_COLOR[d]+');border-radius:50%;width:11px;border:2px solid #fff"></i>'+d+'</div>'; });
+      }
+      boxLeft.innerHTML = h;
+    }
+
+    function render(mover){
+      h3.textContent = 'Caracterización Censo 2024, ' + st.comuna;
+      COMUNAS.forEach(function(c){ comunaBtns[c].setAttribute('aria-pressed', c===st.comuna ? 'true' : 'false'); });
+      bRur.setAttribute('aria-pressed', st.rural ? 'true' : 'false');
+      bCol.setAttribute('aria-pressed', st.colegios ? 'true' : 'false');
+      varBtns.forEach(function(b){ b.setAttribute('aria-pressed', VARS[+b.getAttribute('data-i')]===st.v ? 'true' : 'false'); });
+      if(!map) return;
+
+      var filas = MZ.filter(function(r){ return r.c===st.comuna && (st.rural || r.t==='M'); });
+      var vals = filas.map(function(r){ return r.v[st.v.k]; }).filter(function(x){ return x!==null && x!==undefined; });
+      breaks = quintiles(vals);
+      capaPol.clearLayers();
+      filas.forEach(function(r){
+        var lyr = L.geoJSON(r.g, {style: function(){ return estilo(r,false); }});
+        lyr.bindTooltip(function(){ return tooltip(r); }, {sticky:true});
+        lyr.on('mouseover', function(){ lyr.setStyle(estilo(r,true)); });
+        lyr.on('mouseout', function(){ lyr.setStyle(estilo(r,false)); });
+        r._lyr = lyr;
+        capaPol.addLayer(lyr);
+      });
+
+      capaCol.clearLayers();
+      if(st.colegios){
+        var cols = ((colegiosGeo[st.comuna] || {})[2025] || []).filter(function(c){ return c.lat!=null && c.r===1; });
+        cols.slice().sort(function(a,b){ return (b.m||0)-(a.m||0); }).forEach(function(c){
+          L.circleMarker([c.lat,c.lon], {pane:'colegios', renderer:rendCol, radius: c.m ? Math.max(4, Math.min(16, Math.sqrt(c.m)*0.6)) : 4,
+            color:'#ffffff', weight:2, fillColor:css(DEPE_COLOR[c.d] || '--ink-3'), fillOpacity:.95})
+            .bindTooltip('<span class="tt-title">'+c.n+'</span><span class="tt-sub">'+c.d+'</span><span class="tt-matric"><b>'+fmt(c.m)+'</b><i>alumnos, 2025</i></span>')
+            .addTo(capaCol);
+        });
+      }
+      leyenda(filas.length - vals.length, filas.length);
+
+      if(mover){
+        // encuadre en la localidad urbana con más manzanas (la ciudad principal de la comuna)
+        var cuenta = {}, top = null;
+        filas.forEach(function(r){ if(r.t==='M'){ cuenta[r.nom] = (cuenta[r.nom]||0)+1; if(!top || cuenta[r.nom]>cuenta[top]) top = r.nom; } });
+        var b = L.latLngBounds([]);
+        filas.forEach(function(r){ if(r.t==='M' && r.nom===top) b.extend(r._lyr.getBounds()); });
+        if(b.isValid()) map.fitBounds(b, {padding:[20,20]});
+      }
+    }
+    render(false);
+
+    var rendCol = null;
+    function iniciarMapa(){
+      loading.remove();
+      map = L.map(mapDiv, {preferCanvas:true, scrollWheelZoom:true, zoomControl:false});
+      L.control.zoom({position:'bottomleft'}).addTo(map);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom:19,
+        attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · INE Censo 2024'}).addTo(map);
+      map.createPane('colegios').style.zIndex = 450; // colegios siempre sobre las manzanas
+      rendCol = L.canvas({pane:'colegios'});
+      capaPol = L.layerGroup().addTo(map);
+      capaCol = L.layerGroup().addTo(map);
+      map.invalidateSize();
+      render(true);
+    }
+    if(typeof MZ !== 'undefined') iniciarMapa();
+    else {
+      var sc = document.createElement('script');
+      sc.src = 'datos_manzanas.js';
+      sc.onload = iniciarMapa;
+      sc.onerror = function(){ loading.textContent = 'No se pudieron cargar los datos del Censo 2024 (datos_manzanas.js).'; };
+      document.body.appendChild(sc);
+    }
+
+    return {
+      comuna: function(){ return st.comuna; },
+      refresh: function(c){
+        if(map) map.invalidateSize();
+        if(c && c!==st.comuna){ st.comuna = c; render(true); }
+      }
+    };
   }
 })();
 
