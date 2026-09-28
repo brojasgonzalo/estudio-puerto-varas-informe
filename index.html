@@ -865,10 +865,10 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
 .refname:before{display:none!important}
 .maptabs{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 20px;padding-bottom:10px;border-bottom:3px solid var(--c-pv)}
 .maptab{flex:1 1 260px;display:flex;align-items:center;justify-content:center;gap:10px;border:2px solid var(--c-pv);background:var(--surface);color:var(--c-pv);font:700 15px "IBM Plex Mono",monospace;padding:14px 20px;cursor:pointer;border-radius:2px;box-shadow:3px 3px 0 color-mix(in srgb, var(--c-pv) 35%, transparent);transition:transform .12s ease,box-shadow .12s ease,background .15s ease,color .15s ease}
-.maptab::before{content:"B8";font-size:13px;opacity:.7}
+.maptab::before{content:"▸";font-size:13px;opacity:.7}
 .maptab:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 color-mix(in srgb, var(--c-pv) 50%, transparent);background:color-mix(in srgb, var(--c-pv) 10%, var(--surface))}
 .maptab[aria-selected="true"]{background:var(--c-pv);color:#fff;box-shadow:3px 3px 0 color-mix(in srgb, var(--c-pv) 45%, transparent)}
-.maptab[aria-selected="true"]::before{content:"BE";opacity:1}
+.maptab[aria-selected="true"]::before{content:"▾";opacity:1}
 .maptab:focus-visible{outline:3px solid var(--c-extra);outline-offset:2px}
 .tabpane[hidden]{display:none}
 #censomap{height:560px;width:100%;border-radius:2px;border:1px solid var(--line);background:var(--surface-2)}
