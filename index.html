@@ -879,6 +879,12 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
 .varbtn{display:block;width:100%;text-align:left;border:1.5px solid transparent;background:transparent;color:var(--ink-2);font:500 12px "IBM Plex Sans",sans-serif;padding:3px 7px;border-radius:2px;cursor:pointer;margin:1px 0}
 .varbtn:hover{border-color:var(--line);color:var(--ink)}
 .varbtn[aria-pressed="true"]{background:var(--c-extra);border-color:var(--c-extra);color:#fff;font-weight:600}
+.censo-vars .vtabs{display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:9px}
+.censo-vars .vtab{border:1.5px solid var(--line);background:transparent;color:var(--ink-3);font:600 10.5px "IBM Plex Mono",monospace;padding:4px 5px;cursor:pointer;border-radius:2px;text-align:center}
+.censo-vars .vtab:hover{border-color:var(--ink-3);color:var(--ink)}
+.censo-vars .vtab[aria-selected="true"]{background:var(--c-pv);border-color:var(--c-pv);color:#fff}
+.censo-vars .vnote{font-size:10.5px;color:var(--ink-3);margin-top:8px;line-height:1.45;text-align:left}
+.censo-vars .vlist[hidden]{display:none}
 .censo-loading{padding:40px 14px;color:var(--ink-3);font-size:12.5px}
 .leaflet-tooltip .tt-grid{display:grid;grid-template-columns:1fr auto;gap:1px 10px;margin-top:6px;font-size:11.5px;color:#525b56}
 .leaflet-tooltip .tt-grid b{font-family:"IBM Plex Mono",monospace;font-weight:600;color:#181d1a;text-align:right}
@@ -2322,7 +2328,7 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
   var tabs = {colegios: document.getElementById('tab-colegios'), censo: document.getElementById('tab-censo')};
   var panes = {colegios: document.getElementById('pane-colegios'), censo: document.getElementById('pane-censo')};
   if(!tabs.censo) return;
-  var censo = null; // se arma recién la primera vez que se abre la pestaña (los datos pesan ~3 MB)
+  var censo = null; // se arma recién la primera vez que se abre la pestaña (los datos pesan ~4 MB)
 
   function abrir(k){
     Object.keys(tabs).forEach(function(t){
@@ -2348,22 +2354,60 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
     var mount = document.getElementById('panel-censo');
     if(typeof L === 'undefined'){ mount.innerHTML = '<div class="censo-loading">No se pudo cargar la librería del mapa en este visor.</div>'; return null; }
 
-    // índice en el arreglo v de cada polígono: 0 personas, 1 viviendas particulares, luego los indicadores.
-    // Para agregar indicadores: sumarlos en prep_manzanas_censo.py y listarlos aquí con su grupo.
-    var VARS = [
-      {k:2, g:'Educación', n:'Escolaridad promedio', u:' años', d:'Años de escolaridad promedio de las personas de 18 años o más.'},
-      {k:3, g:'Educación', n:'Educación superior', u:'%', d:'Personas con educación terciaria, maestría o doctorado, sobre las personas de 18 años o más.'},
-      {k:4, g:'Trabajo', n:'Directivos y profesionales', u:'%', d:'Ocupados como directores, gerentes o profesionales (CIUO 1 y 2), sobre el total de ocupados.'},
-      {k:6, g:'Población', n:'Inmigrantes', u:'%', d:'Personas nacidas fuera de Chile, sobre el total de personas. Muy afectado por la supresión del INE.'},
-      {k:7, g:'Población', n:'60 años o más', u:'%', d:'Personas de 60 años o más, sobre el total de personas.'},
-      {k:8, g:'Hogares', n:'Hogares que arriendan', u:'%', d:'Hogares que arriendan su vivienda, con o sin contrato, sobre el total de hogares.'},
-      {k:5, g:'Vivienda', n:'Viviendas desocupadas', u:'%', d:'Viviendas particulares desocupadas (en venta, arriendo, temporada u otro motivo), sobre el total de viviendas particulares.'}
+    // Indicadores por pestaña del cuadro derecho. La clave (key) es la de prep_manzanas_censo.py:
+    // su posición en el arreglo v de cada polígono se busca en MZK al cargar los datos.
+    var PESTANAS = [
+      {id:'pob', n:'Población', nota:'Menores de 18 = 0 a 17 años. El INE publica las edades en tramos (0-5, 6-13, 14-17, 18-24), así que los de 18 años justos no se pueden separar. El Censo no pregunta por embarazo: el % de 0 a 5 años es lo más cercano a natalidad reciente.'},
+      {id:'viv', n:'Hogar y vivienda', nota:'Hacinamiento, allegamiento, materialidad y servicios se calculan sobre las viviendas ocupadas con moradores presentes; tenencia y calefacción, sobre los hogares.'},
+      {id:'gse', n:'Socioeconómico', nota:'El índice es un proxy material y educacional por manzana, no el GSE de la AIM: el Censo no mide ingresos. Una manzana alta en el índice es una donde predomina ese perfil, no todos sus hogares.'},
+      {id:'comp', n:'Composición', nota:'Estado civil: personas de 15 años o más. El parentesco y los hogares monoparentales no se publican por manzana (solo en el microdato, a nivel de comuna). Hogares con menores = con al menos una persona de 0 a 14 años, así lo publica el INE.'}
     ];
+    var VARS = [
+      {p:'pob', key:'men18', n:'Menores de 18 años', d:'Personas de 0 a 17 años, sobre el total de personas.'},
+      {p:'pob', key:'men6', n:'Niños de 0 a 5 años', d:'Personas de 0 a 5 años, sobre el total de personas.'},
+      {p:'pob', key:'may60', n:'60 años o más', d:'Personas de 60 años o más, sobre el total de personas.'},
+      {p:'pob', key:'edad', n:'Edad promedio', u:' años', d:'Edad promedio de las personas censadas.'},
+      {p:'pob', key:'inm', n:'Inmigrantes', d:'Personas nacidas fuera de Chile, sobre el total de personas. Muy afectado por la supresión del INE.'},
+
+      {p:'viv', key:'perhog', n:'Personas por hogar', u:'', dec:2, d:'Promedio de personas por hogar.'},
+      {p:'viv', key:'prop', n:'Hogares propietarios', d:'Hogares en vivienda propia, pagada o pagándose, sobre el total de hogares.'},
+      {p:'viv', key:'arr', n:'Hogares que arriendan', d:'Hogares que arriendan su vivienda, con o sin contrato, sobre el total de hogares.'},
+      {p:'viv', key:'desoc', n:'Viviendas desocupadas', d:'Viviendas particulares desocupadas (en venta, arriendo, temporada u otro motivo), sobre el total de viviendas particulares.'},
+      {p:'viv', key:'depto', n:'Departamentos', d:'Viviendas que son departamento, sobre las viviendas ocupadas.'},
+      {p:'viv', key:'dorm4', n:'4 dormitorios o más', d:'Viviendas con 4 o más dormitorios, sobre las viviendas ocupadas.'},
+      {p:'viv', key:'hacin', n:'Viviendas hacinadas', d:'Viviendas hacinadas (definición INE), sobre las viviendas ocupadas.'},
+      {p:'viv', key:'alleg', n:'Hogares allegados', d:'Hogares allegados (más de un hogar en la misma vivienda), por cada 100 viviendas ocupadas.'},
+      {p:'viv', key:'irrec', n:'Viviendas irrecuperables', d:'Viviendas irrecuperables por su materialidad o tipo (definición INE), sobre las viviendas ocupadas.'},
+      {p:'viv', key:'precar', n:'Paredes precarias', d:'Viviendas con paredes de tabique sin forro, adobe, barro u otros artesanales, o materiales de desecho, sobre las viviendas ocupadas.'},
+      {p:'viv', key:'alcant', n:'Con alcantarillado', d:'Viviendas con baño dentro de la vivienda conectado al alcantarillado, sobre las viviendas ocupadas.'},
+      {p:'viv', key:'lena', n:'Calefacción a leña', d:'Hogares que calefaccionan con leña, sobre el total de hogares.'},
+
+      {p:'gse', key:'ise', n:'Índice socioeconómico (proxy)', u:'', dec:2, d:'Promedio de puntajes estandarizados de 7 componentes: escolaridad, educación superior, directivos y profesionales, computador en el hogar y, en negativo, hacinamiento, paredes precarias y allegamiento. Sobre 0 = mejor situación que el promedio de las 4 comunas; bajo 0 = peor.'},
+      {p:'gse', key:'esc', n:'Escolaridad promedio', u:' años', d:'Años de escolaridad promedio de las personas de 18 años o más.'},
+      {p:'gse', key:'sup', n:'Educación superior', d:'Personas con educación terciaria, maestría o doctorado, sobre las personas de 18 años o más.'},
+      {p:'gse', key:'prof', n:'Directivos y profesionales', d:'Ocupados como directores, gerentes o profesionales (CIUO 1 y 2), sobre el total de ocupados.'},
+      {p:'gse', key:'elem', n:'Ocupaciones elementales', d:'Ocupados en ocupaciones elementales (CIUO 9), sobre el total de ocupados.'},
+      {p:'gse', key:'desocup', n:'Desocupación', d:'Personas desocupadas, sobre la fuerza de trabajo (ocupados más desocupados).'},
+      {p:'gse', key:'compu', n:'Hogares con computador', d:'Hogares con computador, sobre el total de hogares.'},
+      {p:'gse', key:'inet', n:'Hogares con internet fija', d:'Hogares con internet fija, sobre el total de hogares.'},
+
+      {p:'comp', key:'casado', n:'Casados', d:'Personas casadas, sobre las personas de 15 años o más.'},
+      {p:'comp', key:'conviv', n:'Convivientes sin acuerdo', d:'Personas que conviven en pareja sin acuerdo de unión civil, sobre las personas de 15 años o más.'},
+      {p:'comp', key:'auc', n:'Conviviente civil (AUC)', d:'Personas con acuerdo de unión civil, sobre las personas de 15 años o más.'},
+      {p:'comp', key:'sepdiv', n:'Separados o divorciados', d:'Personas anuladas, separadas o divorciadas, sobre las personas de 15 años o más.'},
+      {p:'comp', key:'viudo', n:'Viudos', d:'Personas viudas, sobre las personas de 15 años o más.'},
+      {p:'comp', key:'soltero', n:'Solteros', d:'Personas solteras, sobre las personas de 15 años o más.'},
+      {p:'comp', key:'unip', n:'Hogares unipersonales', d:'Hogares de una sola persona, sobre el total de hogares.'},
+      {p:'comp', key:'hogmen', n:'Hogares con menores', d:'Hogares con al menos una persona de 0 a 14 años, sobre el total de hogares.'},
+      {p:'comp', key:'hog60', n:'Hogares solo de 60 o más', d:'Hogares compuestos solo por personas de 60 años o más, sobre el total de hogares.'},
+      {p:'comp', key:'jefm', n:'Jefatura femenina', d:'Hogares con jefa de hogar mujer, sobre el total de hogares.'}
+    ];
+    VARS.forEach(function(v){ if(v.u===undefined) v.u = '%'; if(v.dec===undefined) v.dec = 1; });
     var RAMP = ['#fdebd3','#f8c88e','#ee9f4c','#cf6e1d','#94450a'];
     var NODATA = '#b4bab6'; // gris fijo: se tiene que ver igual en tema claro y oscuro
-    var st = {comuna: comunaIni, v: VARS[0], colegios: false, rural: true};
+    var st = {comuna: comunaIni, v: VARS[0], pest: 'pob', colegios: false, rural: true};
     var css = function(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); };
-    var num = function(x,u){ return x.toFixed(1).replace('.',',') + u; };
+    var num = function(x,v){ return x.toFixed(v.dec).replace('.',',') + v.u; };
 
     // ---- encabezado y controles (mismo lenguaje visual que el mapa de colegios)
     var head = heln('div',{class:'card-head'});
@@ -2405,24 +2449,35 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
 
     var notas = heln('p',{class:'depe-note'});
     notas.innerHTML = '<b>Sobre los datos del Censo.</b> Fuente: cartografía censal y base manzana-entidad del Censo de Población y Vivienda 2024 (INE). '+
-      'El INE oculta las cifras de personas con menos de 4 casos por manzana (afecta sobre todo a inmigrantes); esas manzanas aparecen en gris, no como cero. Los datos de hogares y viviendas no se suprimen. '+
+      'El INE oculta las cifras de personas con menos de 4 casos por manzana (afecta sobre todo a inmigrantes); esas manzanas aparecen en gris, no como cero. Los datos de hogares y viviendas no se suprimen. Todos los indicadores son agregados por manzana: el INE no publica datos de cada hogar o persona a este nivel. '+
       'Las manzanas con 1 a 3 viviendas ocupadas fueron unidas por el INE con una vecina. Los límites de las entidades rurales son polígonos de Thiessen trazados por el INE alrededor de las viviendas censadas: son una referencia estadística, no límites reales en terreno. '+
       'Las personas en situación de calle y de operativos especiales solo están a nivel comunal y no aparecen en el mapa. En manzanas con pocos habitantes un porcentaje cambia mucho con una o dos personas; el detalle avisa cuando la manzana tiene menos de 20 personas. '+
       'Los colegios son los mismos del mapa de colegios, año 2025, tramo regular.';
     mount.appendChild(notas);
 
-    // ---- selector de indicadores (cuadro superior derecho), agrupado
-    var varBtns = [];
+    // ---- selector de indicadores (cuadro superior derecho), con pestañas para no alargarlo
+    var varBtns = [], tabBtns = [];
     function armarVars(){
-      var h = '<h4>Indicador</h4>', g = null;
-      VARS.forEach(function(v,i){
-        if(v.g!==g){ g=v.g; h += '<div class="vgrp">'+g+'</div>'; }
-        h += '<button type="button" class="varbtn" data-i="'+i+'">'+v.n+'</button>';
+      var h = '<div class="vtabs" role="tablist">';
+      PESTANAS.forEach(function(p){ h += '<button type="button" class="vtab" role="tab" data-p="'+p.id+'">'+p.n+'</button>'; });
+      h += '</div>';
+      PESTANAS.forEach(function(p){
+        h += '<div class="vlist" data-p="'+p.id+'">';
+        VARS.forEach(function(v,i){ if(v.p===p.id) h += '<button type="button" class="varbtn" data-i="'+i+'">'+v.n+'</button>'; });
+        h += '<div class="vnote">'+p.nota+'</div></div>';
       });
       boxRight.innerHTML = h;
       boxRight.querySelectorAll('.varbtn').forEach(function(b){
         varBtns.push(b);
         b.addEventListener('click', function(){ st.v = VARS[+b.getAttribute('data-i')]; render(false); });
+      });
+      boxRight.querySelectorAll('.vtab').forEach(function(b){
+        tabBtns.push(b);
+        // al cambiar de pestaña el mapa pasa al primer indicador de esa pestaña
+        b.addEventListener('click', function(){
+          var p = b.getAttribute('data-p'); if(p===st.pest) return;
+          st.pest = p; st.v = VARS.filter(function(v){ return v.p===p; })[0]; render(false);
+        });
       });
     }
     armarVars();
@@ -2451,16 +2506,17 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
       var h = '<span class="tt-title">'+(r.t==='M' ? 'Manzana' : 'Entidad rural')+' · '+r.nom+'</span>'+
         '<span class="tt-sub">'+fmt(r.v[0])+' personas · '+fmt(r.v[1])+' viviendas particulares</span><div class="tt-grid">';
       VARS.forEach(function(v){
+        if(v.p!==st.pest) return;
         var x = r.v[v.k], cls = v===st.v ? ' class="on"' : '';
-        h += '<span'+cls+'>'+v.n+'</span><b>'+(x===null || x===undefined ? '<span style="color:#7b8580;font-weight:500">suprimido</span>' : num(x,v.u))+'</b>';
+        h += '<span'+cls+'>'+v.n+'</span><b>'+(x===null || x===undefined ? '<span style="color:#7b8580;font-weight:500">sin dato</span>' : num(x,v))+'</b>';
       });
       h += '</div>';
       if(r.v[0] < 20) h += '<div class="tt-warn">Menos de 20 personas: los porcentajes son poco estables.</div>';
       return h;
     }
     function leyenda(nulos, total){
-      var v = st.v, h = '<h4>'+v.n+'</h4>', u = v.u===' años' ? ' años' : '%';
-      var f = function(x){ return x.toFixed(1).replace('.',','); };
+      var v = st.v, h = '<h4>'+v.n+'</h4>', u = v.u;
+      var f = function(x){ return x.toFixed(v.dec).replace('.',','); };
       for(var i=0;i<=breaks.length;i++){
         var a = i===0 ? null : breaks[i-1], b = i<breaks.length ? breaks[i] : null;
         var t = a===null ? (b===null ? 'todas iguales' : 'menos de '+f(b)) : (b===null ? f(a)+' o más' : f(a)+' a menos de '+f(b));
@@ -2481,6 +2537,8 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
       bRur.setAttribute('aria-pressed', st.rural ? 'true' : 'false');
       bCol.setAttribute('aria-pressed', st.colegios ? 'true' : 'false');
       varBtns.forEach(function(b){ b.setAttribute('aria-pressed', VARS[+b.getAttribute('data-i')]===st.v ? 'true' : 'false'); });
+      tabBtns.forEach(function(b){ b.setAttribute('aria-selected', b.getAttribute('data-p')===st.pest ? 'true' : 'false'); });
+      boxRight.querySelectorAll('.vlist').forEach(function(l){ l.hidden = l.getAttribute('data-p')!==st.pest; });
       if(!map) return;
 
       var filas = MZ.filter(function(r){ return r.c===st.comuna && (st.rural || r.t==='M'); });
@@ -2521,6 +2579,8 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
 
     var rendCol = null;
     function iniciarMapa(){
+      // posición de cada indicador en v: 0 personas, 1 viviendas, luego el orden de MZK
+      VARS.forEach(function(v){ v.k = 2 + MZK.indexOf(v.key); });
       loading.remove();
       map = L.map(mapDiv, {preferCanvas:true, scrollWheelZoom:true, zoomControl:false});
       L.control.zoom({position:'bottomleft'}).addTo(map);
