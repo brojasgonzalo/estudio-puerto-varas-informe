@@ -959,6 +959,18 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
 .torta-side .torta-note{margin-top:0}
 .torta-tramo{font-style:normal;margin-top:12px}
 @media (max-width:700px){.torta-fila{flex-direction:column;align-items:flex-start;gap:4px}.torta-lbl{width:auto}}
+.coh-wrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(480px,530px);gap:26px;align-items:start;margin-top:10px}
+@media (max-width:860px){.coh-wrap{grid-template-columns:1fr}}
+#panel-cohortes .yearrow{flex-wrap:nowrap;gap:2px}
+#panel-cohortes .yearbtn{padding:3px 4px;font-size:10px}
+.coh-svg{width:100%;height:auto;display:block;overflow:visible}
+.coh-bar .coh-hit{cursor:pointer}
+.coh-bar.dim rect:not(.coh-hit){opacity:.28}
+.coh-bar:hover rect:not(.coh-hit){filter:brightness(1.08)}
+.coh-lab{font:600 10px "IBM Plex Mono",monospace;fill:var(--ink-2);pointer-events:none}
+#panel-cohortes .torta-acc .acc-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}
+#panel-cohortes .torta-acc .acc-body>.subtle,#panel-cohortes .torta-acc .acc-body>.listclear{grid-column:1/-1;justify-self:start}
+@media (max-width:820px){#panel-cohortes .torta-acc .acc-body{grid-template-columns:1fr}}
 .nobase-note{position:absolute;left:58px;bottom:10px;z-index:450;background:var(--surface);border:1px solid var(--line);padding:5px 9px;font-size:11px;color:var(--ink-3);border-radius:2px;max-width:55%}
 </style>
 
@@ -1022,6 +1034,7 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
 
   <div class="grid">
     <div class="card mapcard" id="panel-torta"></div>
+    <div class="card mapcard" id="panel-cohortes"></div>
     <div class="card mapcard" id="panel-flow"></div>
     <div class="card" id="panel-entrada"></div>
     <div class="card" id="panel-origen"></div>
@@ -1681,6 +1694,193 @@ makePanel('panel-flow',{
                         '<div class="subtle">Comuna del colegio donde estaba matriculado el alumno el año anterior. No incluye a quienes no tienen registro el año anterior ni a quienes comienzan 1° básico.</div>';
   }
   render();
+})();
+
+
+// cohortes de llegada: matrícula del tramo regular de un año según el año en que cada alumno llegó a la comuna
+// (o a la región) y desde dónde. Barras apiladas por año de llegada; la leyenda prende y apaga orígenes; click en
+// una barra filtra la tabla de comunas de origen a esa cohorte. Los datos (datos_cohortes.js) se cargan aparte.
+(function(){
+  var mount = document.getElementById('panel-cohortes'); if(!mount) return;
+  var REG = 'Región de Los Lagos';
+  var DEPS = [['T','Todas',null],['M','Municipal / SLEP','--c-pv'],['S','Part. Subvencionado','--c-pm'],['P','Part. Pagado','--c-fr']];
+  // índice en cada fila de COHORTES: [año de llegada, ll, or, sr, ce]
+  function cats(esReg){
+    var lugar = esReg ? 'la región' : 'la comuna';
+    return [
+      {k:4, n:'En '+lugar+' desde 2014 o antes', c:'--c-pv'},
+      {k:3, n:'Sin registro previo', c:'--c-extra'},
+      {k:1, n:'Llegó desde otra comuna de Los Lagos', c:'--c-pm', comuna:true},
+      {k:2, n:'Llegó desde otra región', c:'--c-os'}
+    ].filter(function(x){ return !(esReg && x.comuna); });
+  }
+  var apagadas = {};
+  var comuna = DEFAULT_COMUNA, anio = YEARS11[YEARS11.length-1], dep = 'T', cohorteSel = null;
+
+  var head = heln('div',{class:'card-head'});
+  var tw = heln('div'); var h3 = heln('h3'); tw.appendChild(h3);
+  var sub = heln('div',{class:'sub'}); sub.textContent = 'Matrícula del tramo regular según el año en que cada alumno llegó y desde dónde. Click en una barra para ver las comunas de origen de esa cohorte.'; tw.appendChild(sub);
+  head.appendChild(tw); var statBox = heln('div',{class:'stat'}); head.appendChild(statBox); mount.appendChild(head);
+
+  var wrap = heln('div',{class:'coh-wrap'});
+  var chartHost = heln('div',{class:'coh-chart'}), side = heln('div',{class:'torta-side'}), leg = heln('div',{class:'torta-leg'});
+  wrap.appendChild(chartHost); wrap.appendChild(side); mount.appendChild(wrap);
+  function fila(etiqueta, control){
+    var f = heln('div',{class:'torta-fila'});
+    var l = heln('span',{class:'torta-lbl'}); l.textContent = etiqueta;
+    f.appendChild(l); f.appendChild(control); side.appendChild(f);
+  }
+  fila('Comuna', comunaPicker(comuna, function(c){ comuna = c; cohorteSel = null; render(); }, true));
+  var yearRow = heln('div',{class:'yearrow'}), yearBtns = {};
+  YEARS11.forEach(function(y){
+    var b = heln('button',{class:'yearbtn',type:'button'}); b.textContent = y;
+    b.addEventListener('click',function(){ anio = y; cohorteSel = null; render(); });
+    yearBtns[y] = b; yearRow.appendChild(b);
+  });
+  fila('Año', yearRow);
+  var depRow = heln('div',{class:'switcher torta-dep'}), depBtns = {};
+  DEPS.forEach(function(d){
+    var b = heln('button',{class:'pillmini',type:'button'});
+    b.style.setProperty('--dotc', d[2] ? 'var('+d[2]+')' : 'var(--ink-2)');
+    b.appendChild(heln('span',{class:'dot'})); b.appendChild(document.createTextNode(d[1]));
+    b.addEventListener('click',function(){ dep = d[0]; render(); });
+    depBtns[d[0]] = b; depRow.appendChild(b);
+  });
+  fila('Dependencia', depRow);
+  side.appendChild(leg);
+  var nota = heln('div',{class:'torta-note'}); side.appendChild(nota);
+
+  var acc = heln('details',{class:'acc torta-acc'});
+  var accSum = heln('summary'); acc.appendChild(accSum);
+  var accBody = heln('div',{class:'acc-body'}); acc.appendChild(accBody);
+  mount.appendChild(acc);
+  var notaDef = heln('p',{class:'depe-note torta-tramo'});
+  notaDef.innerHTML = '<b>Año de llegada.</b> Primer año del período continuo más reciente en que el alumno estuvo matriculado, en cualquier nivel (incluida parvularia), en un colegio de la comuna. Si se fue y volvió, cuenta la última llegada. Los datos parten en 2014, por eso quien está desde entonces aparece como &ldquo;2014 o antes&rdquo;. <b>Sin registro previo</b>: el año anterior a su llegada no estaba en ningún colegio de Chile; son sobre todo niños que comenzaron su escolaridad en la comuna, además de quienes llegaron del extranjero o volvieron al sistema.';
+  mount.appendChild(notaDef);
+
+  var NS = 'http://www.w3.org/2000/svg';
+  function sv(tag, a){ var e = document.createElementNS(NS, tag); for(var k in a) e.setAttribute(k, a[k]); return e; }
+  function pct(x){ return (Math.round(x*1000)/10).toFixed(1).replace('.',',')+'%'; }
+
+  // filas [año de llegada, ll, or, sr, ce] sumando las dependencias elegidas
+  function filas(){
+    var porDep = ((COHORTES[comuna] || {})[anio]) || {}, acc = {};
+    Object.keys(porDep).forEach(function(dk){
+      if(dep!=='T' && dk!==dep) return;
+      porDep[dk].forEach(function(r){
+        var a = acc[r[0]] || (acc[r[0]] = [r[0],0,0,0,0]);
+        for(var j=1;j<5;j++) a[j] += r[j];
+      });
+    });
+    var out = [];
+    for(var y=2014; y<=anio; y++) out.push(acc[y] || [y,0,0,0,0]);
+    return out;
+  }
+  function origenes(tipo){
+    var porDep = ((COHORTES_ORIGEN[comuna] || {})[anio]) || {}, acc = {};
+    Object.keys(porDep).forEach(function(dk){
+      if(dep!=='T' && dk!==dep) return;
+      Object.keys(porDep[dk]).forEach(function(ini){
+        if(cohorteSel!=null && +ini!==cohorteSel) return;
+        porDep[dk][ini].forEach(function(p){
+          var esLL = Math.floor(p[0]/1000)===10;
+          if((tipo==='ll') !== esLL) return;
+          acc[p[0]] = (acc[p[0]]||0) + p[1];
+        });
+      });
+    });
+    return Object.keys(acc).map(function(k){ return [k, acc[k]]; }).sort(function(a,b){ return b[1]-a[1]; });
+  }
+  function tablaOrigen(titulo, lista, conRegion){
+    var tot = lista.reduce(function(a,f){ return a+f[1]; },0);
+    if(!tot) return '<div class="torta-tab"><h4>'+titulo+'</h4><div class="subtle">Sin alumnos de este origen.</div></div>';
+    var h = '<div class="torta-tab"><h4>'+titulo+' <span class="pctdim">('+fmt(tot)+' alumnos, '+lista.length+' comunas)</span></h4><div class="tbl-wrap"><table class="clist"><thead><tr><th>Comuna de origen</th>'+(conRegion?'<th>Región</th>':'')+'<th class="num">Alumnos</th><th class="num">%</th></tr></thead><tbody>';
+    lista.forEach(function(f){
+      var info = comunasOrigen[f[0]] || ['Comuna '+f[0],''];
+      h += '<tr><td>'+info[0]+'</td>'+(conRegion?'<td>'+info[1]+'</td>':'')+'<td class="num">'+fmt(f[1])+'</td><td class="num">'+pct(f[1]/tot)+'</td></tr>';
+    });
+    return h + '</tbody></table></div></div>';
+  }
+
+  function render(){
+    if(typeof COHORTES === 'undefined'){ chartHost.innerHTML = '<div class="subtle" style="padding:40px 0">Cargando cohortes…</div>'; return; }
+    var esReg = comuna===REG, cs = cats(esReg), fs = filas();
+    var depNom = DEPS.filter(function(d){ return d[0]===dep; })[0][1];
+    h3.textContent = 'Año de llegada '+(esReg?'a la región':'a la comuna')+', '+comuna+' '+anio+(dep==='T' ? '' : ' · '+depNom);
+    Object.keys(yearBtns).forEach(function(y){ yearBtns[y].setAttribute('aria-pressed', +y===anio?'true':'false'); });
+    Object.keys(depBtns).forEach(function(k){ depBtns[k].setAttribute('aria-pressed', k===dep?'true':'false'); });
+    var totAll = 0, totVis = 0, porCat = {};
+    fs.forEach(function(r){ cs.forEach(function(ct){ totAll += r[ct.k]; porCat[ct.k] = (porCat[ct.k]||0) + r[ct.k]; if(!apagadas[ct.n]) totVis += r[ct.k]; }); });
+    statBox.innerHTML = fmt(totAll)+'<small>matrícula tramo regular '+anio+'</small>';
+
+    // barras apiladas por año de llegada
+    var W = 640, H = 300, PL = 44, PR = 8, PT = 22, PB = 34, n = fs.length;
+    var alto = fs.map(function(r){ var s = 0; cs.forEach(function(ct){ if(!apagadas[ct.n]) s += r[ct.k]; }); return totVis ? s/totVis : 0; });
+    var maxP = Math.max.apply(null, alto.concat([0.01]));
+    var paso = maxP > 0.3 ? 0.1 : (maxP > 0.12 ? 0.05 : 0.02), top = Math.ceil(maxP/paso)*paso;
+    var y = function(v){ return PT + (H-PT-PB)*(1 - v/top); };
+    var colW = (W-PL-PR)/n, bw = colW*0.68;
+    var svg = sv('svg',{viewBox:'0 0 '+W+' '+H,class:'chart coh-svg',role:'img','aria-label':'Barras por año de llegada'});
+    for(var g=0; g<=top+1e-9; g+=paso){
+      svg.appendChild(sv('line',{x1:PL,x2:W-PR,y1:y(g),y2:y(g),class:'gridline'}));
+      var tl = sv('text',{x:PL-6,y:y(g)+3,'text-anchor':'end',class:'axis-label'}); tl.textContent = Math.round(g*100)+'%'; svg.appendChild(tl);
+    }
+    fs.forEach(function(r,i){
+      var cx = PL + colW*i + colW/2, acc = 0;
+      var grupo = sv('g',{class:'coh-bar'+(cohorteSel!=null && cohorteSel!==r[0] ? ' dim' : '')});
+      cs.forEach(function(ct){
+        if(apagadas[ct.n] || !r[ct.k] || !totVis) return;
+        var v = r[ct.k]/totVis, rect = sv('rect',{x:(cx-bw/2).toFixed(1),y:y(acc+v).toFixed(1),width:bw.toFixed(1),height:Math.max(0,y(acc)-y(acc+v)).toFixed(1)});
+        rect.style.fill = 'var('+ct.c+')'; grupo.appendChild(rect); acc += v;
+      });
+      var hit = sv('rect',{x:(cx-colW/2).toFixed(1),y:PT,width:colW.toFixed(1),height:H-PT-PB,fill:'transparent',class:'coh-hit'});
+      grupo.appendChild(hit);
+      if(acc >= 0.005){ var lb = sv('text',{x:cx.toFixed(1),y:(y(acc)-5).toFixed(1),'text-anchor':'middle',class:'coh-lab'}); lb.textContent = pct(acc); grupo.appendChild(lb); }
+      var xl = sv('text',{x:cx.toFixed(1),y:H-PB+15,'text-anchor':'middle',class:'axis-label'}); xl.textContent = r[0]===2014 ? '≤2014' : r[0]; grupo.appendChild(xl);
+      hit.addEventListener('pointerenter',function(e){
+        var h = '<div class="ttyear">'+(r[0]===2014 ? 'En '+(esReg?'la región':'la comuna')+' desde 2014 o antes' : 'Llegaron en '+r[0])+'</div>';
+        cs.forEach(function(ct){ if(r[ct.k]) h += '<div class="ttrow"><span class="ttname"><i style="background:var('+ct.c+')"></i>'+ct.n+'</span><b>'+fmt(r[ct.k])+'</b></div>'; });
+        h += '<div class="ttrow" style="margin-top:4px;padding-top:4px;border-top:1px solid rgba(255,255,255,.2)"><span class="ttname">% de la matrícula visible</span><b>'+pct(acc)+'</b></div>';
+        showTT(e,h);
+      });
+      hit.addEventListener('pointermove',moveTT);
+      hit.addEventListener('pointerleave',hideTT);
+      hit.addEventListener('click',function(){ cohorteSel = cohorteSel===r[0] ? null : r[0]; acc0.open = true; render(); });
+      svg.appendChild(grupo);
+    });
+    var xt = sv('text',{x:(PL+(W-PL-PR)/2).toFixed(1),y:H-4,'text-anchor':'middle',class:'axis-label'}); xt.textContent = 'Año de llegada'; svg.appendChild(xt);
+    chartHost.innerHTML = ''; chartHost.appendChild(svg);
+
+    // leyenda prendible
+    leg.innerHTML = '';
+    cs.forEach(function(ct){
+      var off = !!apagadas[ct.n];
+      var b = heln('button',{class:'torta-item',type:'button','aria-pressed':off?'false':'true'});
+      b.style.setProperty('--dotc','var('+ct.c+')');
+      b.innerHTML = '<span class="sq"></span><span>'+ct.n+'</span><b>'+fmt(porCat[ct.k]||0)+'</b><span class="pct">'+(off||!totVis?'':pct((porCat[ct.k]||0)/totVis))+'</span>';
+      b.addEventListener('click',function(){ if(apagadas[ct.n]) delete apagadas[ct.n]; else apagadas[ct.n] = true; render(); });
+      leg.appendChild(b);
+    });
+    nota.textContent = 'Los porcentajes son sobre las categorías visibles.';
+
+    // tabla de comunas de origen (todas las cohortes, o la cohorte seleccionada)
+    var donde = comuna+' '+anio+(dep==='T' ? '' : ', '+depNom)+(cohorteSel!=null ? ', llegaron en '+cohorteSel : '');
+    accSum.innerHTML = '<span class="acc-ico" aria-hidden="true"></span><span class="acc-txt">Ver comunas de origen</span><span class="acc-det">'+donde+'</span>';
+    accBody.innerHTML = (cohorteSel!=null ? '<button type="button" class="listclear">&larr; Ver todas las cohortes</button>' : '') +
+      (esReg ? '' : tablaOrigen('Llegaron desde otra comuna de Los Lagos', origenes('ll'), false)) +
+      tablaOrigen('Llegaron desde otra región', origenes('or'), true) +
+      '<div class="subtle">Comuna del colegio donde estaba el alumno el año anterior a su llegada. Click en una barra del gráfico para ver solo esa cohorte.</div>';
+    var lc = accBody.querySelector('.listclear');
+    if(lc) lc.addEventListener('click', function(){ cohorteSel = null; render(); });
+  }
+  var acc0 = acc;
+  render();
+  if(typeof COHORTES === 'undefined'){
+    var sc = document.createElement('script'); sc.src = 'datos_cohortes.js';
+    sc.onload = render;
+    sc.onerror = function(){ chartHost.innerHTML = '<div class="subtle" style="padding:40px 0">No se pudieron cargar los datos de cohortes.</div>'; };
+    document.body.appendChild(sc);
+  }
 })();
 
 
