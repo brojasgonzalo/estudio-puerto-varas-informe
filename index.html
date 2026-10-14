@@ -926,6 +926,21 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
 .torta-tab{margin-bottom:12px}
 .torta-tab h4{font:600 11.5px "IBM Plex Mono",monospace;color:var(--ink);margin:4px 0 6px}
 .torta-tab .tbl-wrap{max-height:260px}
+.picker{gap:6px;align-items:center}
+.torta-dep{gap:4px;align-items:center;flex-wrap:nowrap;overflow-x:auto}
+.torta-dep .pillmini{font-size:10.5px;padding:3px 7px;gap:5px;white-space:nowrap}
+.torta-dep .pillmini .dot{width:6px;height:6px}
+.torta-dep-lbl{font-size:10px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em;margin-right:2px;white-space:nowrap}
+.acc.torta-acc{border:none;background:transparent}
+.torta-acc>summary{background:transparent;padding:6px 0;text-transform:none;letter-spacing:0;font:600 12.5px "IBM Plex Sans",sans-serif;color:var(--c-pv);gap:8px;flex-wrap:wrap}
+.torta-acc>summary::before{content:none}
+.torta-acc .acc-ico{width:18px;height:18px;border:1.5px solid var(--c-pv);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;flex:none;transition:transform .15s ease}
+.torta-acc .acc-ico::after{content:"";width:5px;height:5px;border-right:1.5px solid var(--c-pv);border-bottom:1.5px solid var(--c-pv);transform:translateY(-1px) rotate(45deg)}
+.torta-acc[open] .acc-ico{transform:rotate(180deg)}
+.torta-acc .acc-txt{text-decoration:underline;text-decoration-style:dotted;text-decoration-thickness:1.5px;text-underline-offset:4px}
+.torta-acc>summary:hover .acc-txt{text-decoration-style:solid}
+.torta-acc .acc-det{color:var(--ink-3);font-weight:500;font-size:11.5px}
+.torta-acc .acc-body{padding:8px 0 0}
 .nobase-note{position:absolute;left:58px;bottom:10px;z-index:450;background:var(--surface);border:1px solid var(--line);padding:5px 9px;font-size:11px;color:var(--ink-3);border-radius:2px;max-width:55%}
 </style>
 
@@ -994,7 +1009,7 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
     <div class="card" id="panel-origen"></div>
   </div>
   <p class="depe-note" style="font-style:normal"><b>Administraci&oacute;n delegada.</b> En la regi&oacute;n solo hay colegios de administraci&oacute;n delegada en R&iacute;o Negro. Cuentan en los totales, pero no aparecen en el gr&aacute;fico de entradas por dependencia.</p>
-  <p class="depe-note" style="font-style:normal"><b>Tramo regular y matr&iacute;cula total.</b> La torta y los dem&aacute;s gr&aacute;ficos de migraci&oacute;n cuentan solo de 1&deg; b&aacute;sico a 4&deg; medio, por eso no calzan con &ldquo;Matr&iacute;cula por dependencia&rdquo; (secci&oacute;n 01), que suma todos los niveles. Por ejemplo, en particulares pagados de Puerto Varas 2025 hay 3.393 alumnos del tramo regular y 681 de educaci&oacute;n parvularia, 4.074 en total. La parvularia queda fuera porque no se puede seguir a los ni&ntilde;os de un a&ntilde;o a otro: la mayor&iacute;a no tiene matr&iacute;cula previa registrada en Mineduc.</p>
+  <p class="depe-note" style="font-style:normal"><b>Tramo regular y matr&iacute;cula total.</b> La migraci&oacute;n cuenta solo de 1&deg; b&aacute;sico a 4&deg; medio, por eso no calza con &ldquo;Matr&iacute;cula por dependencia&rdquo; (secci&oacute;n 01), que incluye parvularia (en particulares pagados de Puerto Varas 2025: 3.393 + 681 = 4.074). La parvularia se excluye porque no se puede seguir a los ni&ntilde;os de un a&ntilde;o a otro.</p>
 </section>
 
 <section id="mapa">
@@ -1296,26 +1311,28 @@ function legendRow(order,colorMap){
 // selector de comuna para los gráficos con óptica regional: las 4 comunas del estudio como botones y el resto
 // de la Región de Los Lagos (y opcionalmente el total regional) en una lista desplegable
 function comunaPicker(initial, onChange, conRegion){
-  var row = heln('div',{class:'switcher'});
-  var pills = {};
-  COMUNAS.forEach(function(c){
-    var b = heln('button',{class:'pillmini',type:'button','aria-pressed': c===initial?'true':'false'});
-    b.style.setProperty('--dotc','var('+COMUNA_COLOR[c]+')');
-    b.appendChild(heln('span',{class:'dot'})); b.appendChild(document.createTextNode(c));
-    b.addEventListener('click',function(){ marcar(c); onChange(c); });
-    pills[c]=b; row.appendChild(b);
-  });
+  var row = heln('div',{class:'switcher picker'});
+  var pv = heln('button',{class:'pillmini',type:'button'});
+  pv.style.setProperty('--dotc','var('+COMUNA_COLOR[DEFAULT_COMUNA]+')');
+  pv.appendChild(heln('span',{class:'dot'})); pv.appendChild(document.createTextNode(DEFAULT_COMUNA));
+  pv.addEventListener('click',function(){ marcar(DEFAULT_COMUNA); onChange(DEFAULT_COMUNA); });
+  row.appendChild(pv);
   var sel = heln('select',{class:'comsel','aria-label':'Otra comuna de la Región de Los Lagos'});
-  var o0 = heln('option',{value:''}); o0.textContent = 'Otra comuna de Los Lagos…'; sel.appendChild(o0);
+  var o0 = heln('option',{value:''}); o0.textContent = 'Otra comuna…'; sel.appendChild(o0);
   if(conRegion){ var orr = heln('option',{value:'Región de Los Lagos'}); orr.textContent = 'Región de Los Lagos (total)'; sel.appendChild(orr); }
-  COMUNAS_REGION.filter(function(c){ return COMUNAS.indexOf(c)<0; }).forEach(function(c){
-    var o = heln('option',{value:c}); o.textContent = c; sel.appendChild(o);
-  });
+  function grupo(nombre, lista){
+    var g = heln('optgroup',{label:nombre});
+    lista.forEach(function(c){ var o = heln('option',{value:c}); o.textContent = c; g.appendChild(o); });
+    sel.appendChild(g);
+  }
+  grupo('Comunas del estudio', COMUNAS.filter(function(c){ return c!==DEFAULT_COMUNA; }));
+  grupo('Resto de Los Lagos', COMUNAS_REGION.filter(function(c){ return COMUNAS.indexOf(c)<0; }));
   sel.addEventListener('change',function(){ if(!sel.value) return; marcar(sel.value); onChange(sel.value); });
   function marcar(c){
-    Object.keys(pills).forEach(function(k){ pills[k].setAttribute('aria-pressed', k===c?'true':'false'); });
-    sel.value = pills[c] ? '' : c;
-    sel.classList.toggle('on', !pills[c]);
+    var esPV = c===DEFAULT_COMUNA;
+    pv.setAttribute('aria-pressed', esPV?'true':'false');
+    sel.value = esPV ? '' : c;
+    sel.classList.toggle('on', !esPV);
   }
   row.appendChild(sel);
   marcar(initial);
@@ -1494,7 +1511,7 @@ makePanel('panel-flow',{
   var REG = 'Región de Los Lagos';
   var CATS_COM = ['Se mantiene','Entrante de otra comuna de Los Lagos','Entrante de otra región','Sin registro el año anterior','Ingreso 1° básico'];
   var CATS_REG = ['Se mantiene en la región','Entrante de otra región','Sin registro el año anterior','Ingreso 1° básico'];
-  var DEPS = [['T','Todas las dependencias',null],['M','Municipal / SLEP','--c-pv'],['S','Part. Subvencionado','--c-pm'],['P','Part. Pagado','--c-fr']];
+  var DEPS = [['T','Todas',null],['M','Municipal / SLEP','--c-pv'],['S','Part. Subvencionado','--c-pm'],['P','Part. Pagado','--c-fr']];
   var apagadas = {'Sin registro el año anterior':true,'Ingreso 1° básico':true}; // por defecto se ven los que se mantienen y los entrantes
   var comuna = DEFAULT_COMUNA, anio = YEARS11[YEARS11.length-1], dep = 'T';
 
@@ -1514,6 +1531,7 @@ makePanel('panel-flow',{
 
   // filtro por dependencia del colegio al que asiste el alumno ese año
   var depRow = heln('div',{class:'switcher torta-dep'}), depBtns = {};
+  var depLbl = heln('span',{class:'torta-dep-lbl'}); depLbl.textContent = 'Dependencia'; depRow.appendChild(depLbl);
   DEPS.forEach(function(d){
     var b = heln('button',{class:'pillmini',type:'button'});
     b.style.setProperty('--dotc', d[2] ? 'var('+d[2]+')' : 'var(--ink-2)');
@@ -1530,7 +1548,7 @@ makePanel('panel-flow',{
 
   // tabla desplegable de comunas de origen
   var acc = heln('details',{class:'acc torta-acc'});
-  var accSum = heln('summary'); accSum.textContent = 'Ver comunas de origen de los entrantes'; acc.appendChild(accSum);
+  var accSum = heln('summary'); acc.appendChild(accSum);
   var accBody = heln('div',{class:'acc-body'}); acc.appendChild(accBody);
   mount.appendChild(acc);
 
@@ -1632,7 +1650,7 @@ makePanel('panel-flow',{
 
     // tabla de comunas de origen
     var donde = comuna+' '+anio+(dep==='T' ? '' : ', '+depNom);
-    accSum.textContent = 'Ver comunas de origen de los entrantes ('+donde+')';
+    accSum.innerHTML = '<span class="acc-ico" aria-hidden="true"></span><span class="acc-txt">Ver comunas de origen de los entrantes</span><span class="acc-det">'+donde+'</span>';
     accBody.innerHTML = (esReg ? '<div class="subtle" style="margin:0 0 8px">En el total regional, quien se movió entre comunas de Los Lagos cuenta como "se mantiene en la región"; por eso solo se listan las comunas de otras regiones.</div>'
                                : tablaOrigen('Entrantes de otra comuna de Los Lagos', origenes('i'), false)) +
                         tablaOrigen('Entrantes de otra región', origenes('x'), true) +
