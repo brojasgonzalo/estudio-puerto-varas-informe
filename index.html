@@ -949,6 +949,16 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
 @media (max-width:820px){#panel-torta .torta-acc .acc-body{grid-template-columns:1fr}}
 #panel-torta .torta-acc .acc-body>.subtle{grid-column:1/-1}
 @media (max-width:700px){#panel-torta .torta-wrap{grid-template-columns:1fr}}
+#panel-torta .torta-wrap{grid-template-columns:minmax(260px,400px) minmax(0,1fr);gap:32px;align-items:start;margin-top:10px}
+#panel-torta .torta-svg{padding-top:6px}
+.torta-side{display:flex;flex-direction:column;gap:9px;min-width:0}
+.torta-fila{display:flex;align-items:center;gap:10px;min-width:0}
+.torta-lbl{flex:none;width:86px;font-size:10px;font-weight:700;color:var(--ink-3);text-transform:uppercase;letter-spacing:.05em}
+.torta-fila .switcher,.torta-fila .yearrow{margin:0}
+.torta-side .torta-leg{margin-top:6px}
+.torta-side .torta-note{margin-top:0}
+.torta-tramo{font-style:normal;margin-top:12px}
+@media (max-width:700px){.torta-fila{flex-direction:column;align-items:flex-start;gap:4px}.torta-lbl{width:auto}}
 .nobase-note{position:absolute;left:58px;bottom:10px;z-index:450;background:var(--surface);border:1px solid var(--line);padding:5px 9px;font-size:11px;color:var(--ink-3);border-radius:2px;max-width:55%}
 </style>
 
@@ -1017,7 +1027,6 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
     <div class="card" id="panel-origen"></div>
   </div>
   <p class="depe-note" style="font-style:normal"><b>Administraci&oacute;n delegada.</b> En la regi&oacute;n solo hay colegios de administraci&oacute;n delegada en R&iacute;o Negro. Cuentan en los totales, pero no aparecen en el gr&aacute;fico de entradas por dependencia.</p>
-  <p class="depe-note" style="font-style:normal"><b>Tramo regular y matr&iacute;cula total.</b> La migraci&oacute;n cuenta solo de 1&deg; b&aacute;sico a 4&deg; medio, por eso no calza con &ldquo;Matr&iacute;cula por dependencia&rdquo; (secci&oacute;n 01), que incluye parvularia (en particulares pagados de Puerto Varas 2025: 3.393 + 681 = 4.074). La parvularia se excluye porque no se puede seguir a los ni&ntilde;os de un a&ntilde;o a otro.</p>
 </section>
 
 <section id="mapa">
@@ -1529,7 +1538,15 @@ makePanel('panel-flow',{
   var tw = heln('div'); var h3 = heln('h3'); tw.appendChild(h3);
   var sub = heln('div',{class:'sub'}); sub.textContent = 'Matrícula del tramo regular según dónde estaba el año anterior. Toca la leyenda para mostrar u ocultar categorías.'; tw.appendChild(sub);
   head.appendChild(tw); var statBox = heln('div',{class:'stat'}); head.appendChild(statBox); mount.appendChild(head);
-  mount.appendChild(comunaPicker(comuna, function(c){ comuna = c; render(); }, true));
+  var wrap = heln('div',{class:'torta-wrap'});
+  var svgHost = heln('div',{class:'torta-svg'}), side = heln('div',{class:'torta-side'}), leg = heln('div',{class:'torta-leg'});
+  wrap.appendChild(svgHost); wrap.appendChild(side); mount.appendChild(wrap);
+  function fila(etiqueta, control){
+    var f = heln('div',{class:'torta-fila'});
+    var l = heln('span',{class:'torta-lbl'}); l.textContent = etiqueta;
+    f.appendChild(l); f.appendChild(control); side.appendChild(f);
+  }
+  fila('Comuna', comunaPicker(comuna, function(c){ comuna = c; render(); }, true));
 
   var yearRow = heln('div',{class:'yearrow'}), yearBtns = {};
   YEARS11.forEach(function(y){
@@ -1537,11 +1554,10 @@ makePanel('panel-flow',{
     b.addEventListener('click',function(){ anio = y; render(); });
     yearBtns[y] = b; yearRow.appendChild(b);
   });
-  mount.appendChild(yearRow);
+  fila('Año', yearRow);
 
   // filtro por dependencia del colegio al que asiste el alumno ese año
   var depRow = heln('div',{class:'switcher torta-dep'}), depBtns = {};
-  var depLbl = heln('span',{class:'torta-dep-lbl'}); depLbl.textContent = 'Dependencia'; depRow.appendChild(depLbl);
   DEPS.forEach(function(d){
     var b = heln('button',{class:'pillmini',type:'button'});
     b.style.setProperty('--dotc', d[2] ? 'var('+d[2]+')' : 'var(--ink-2)');
@@ -1549,18 +1565,18 @@ makePanel('panel-flow',{
     b.addEventListener('click',function(){ dep = d[0]; render(); });
     depBtns[d[0]] = b; depRow.appendChild(b);
   });
-  mount.appendChild(depRow);
-
-  var wrap = heln('div',{class:'torta-wrap'});
-  var svgHost = heln('div'), leg = heln('div',{class:'torta-leg'});
-  wrap.appendChild(svgHost); wrap.appendChild(leg); mount.appendChild(wrap);
-  var nota = heln('div',{class:'torta-note'}); mount.appendChild(nota);
+  fila('Dependencia', depRow);
+  side.appendChild(leg);
+  var nota = heln('div',{class:'torta-note'}); side.appendChild(nota);
 
   // tabla desplegable de comunas de origen
   var acc = heln('details',{class:'acc torta-acc'});
   var accSum = heln('summary'); acc.appendChild(accSum);
   var accBody = heln('div',{class:'acc-body'}); acc.appendChild(accBody);
   mount.appendChild(acc);
+  var notaTramo = heln('p',{class:'depe-note torta-tramo'});
+  notaTramo.innerHTML = '<b>Tramo regular y matrícula total.</b> La migración cuenta solo de 1° básico a 4° medio, por eso no calza con “Matrícula por dependencia” (sección 01), que incluye parvularia (en particulares pagados de Puerto Varas 2025: 3.393 + 681 = 4.074). La parvularia se excluye porque no se puede seguir a los niños de un año a otro.';
+  mount.appendChild(notaTramo);
 
   var NS = 'http://www.w3.org/2000/svg';
   function sv(tag, a){ var e = document.createElementNS(NS, tag); for(var k in a) e.setAttribute(k, a[k]); return e; }
@@ -1654,9 +1670,7 @@ makePanel('panel-flow',{
     });
     var totAll = vals.reduce(function(a,b){ return a+b; },0);
     statBox.innerHTML = fmt(totAll)+'<small>matrícula tramo regular '+anio+'</small>';
-    nota.textContent = (esReg ? 'Región completa: "se mantiene" es quien el año anterior ya estaba en cualquier colegio de Los Lagos. ' : '') +
-      'Los porcentajes son sobre las categorías visibles. ' + (apagadas['Sin registro el año anterior']||apagadas['Ingreso 1° básico'] ? 'Sin registro el año anterior e Ingreso 1° básico parten ocultas; tócalas para sumarlas. ' : '') +
-      (dep==='T' ? '' : 'La dependencia es la del colegio al que asiste el alumno en '+anio+'.');
+    nota.textContent = 'Los porcentajes son sobre las categorías visibles.';
 
     // tabla de comunas de origen
     var donde = comuna+' '+anio+(dep==='T' ? '' : ', '+depNom);
