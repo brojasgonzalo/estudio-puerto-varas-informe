@@ -2290,8 +2290,8 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
       {p:'viv', key:'alcant', n:'Con alcantarillado', d:'Viviendas con baño dentro de la vivienda conectado al alcantarillado, sobre las viviendas ocupadas.'},
       {p:'viv', key:'lena', n:'Calefacción a leña', d:'Hogares que calefaccionan con leña, sobre el total de hogares.'},
 
-      {p:'gse', key:'ise', n:'Índice socioeconómico (proxy)', u:'', dec:2, d:'Promedio de puntajes estandarizados de 7 componentes: escolaridad, educación superior, directivos y profesionales, computador en el hogar y, en negativo, hacinamiento, paredes precarias y allegamiento. Sobre 0 = mejor situación que el promedio de las 4 comunas; bajo 0 = peor.'},
-      {p:'gse', key:'esc', n:'Escolaridad promedio', u:' años', d:'Años de escolaridad promedio de las personas de 18 años o más.'},
+      {p:'gse', key:'ise', n:'Índice socioeconómico (proxy)', u:'', dec:2, pond:true, d:'Promedio de puntajes estandarizados de 7 componentes: escolaridad, educación superior, directivos y profesionales, computador en el hogar y, en negativo, hacinamiento, paredes precarias y allegamiento. Los puntajes usan la media y la desviación estándar de la comuna, ponderadas por su población de 18 años o más: 0 = adulto promedio de la comuna; sobre 0 = mejor situación; bajo 0 = peor. No es comparable entre comunas.'},
+      {p:'gse', key:'esc', n:'Escolaridad promedio', u:' años', pond:true, d:'Años de escolaridad promedio de las personas de 18 años o más.'},
       {p:'gse', key:'sup', n:'Educación superior', d:'Personas con educación terciaria, maestría o doctorado, sobre las personas de 18 años o más.'},
       {p:'gse', key:'prof', n:'Directivos y profesionales', d:'Ocupados como directores, gerentes o profesionales (CIUO 1 y 2), sobre el total de ocupados.'},
       {p:'gse', key:'elem', n:'Ocupaciones elementales', d:'Ocupados en ocupaciones elementales (CIUO 9), sobre el total de ocupados.'},
@@ -2390,11 +2390,26 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
     }
     armarVars();
 
-    var map = null, capaPol = null, capaCol = null, breaks = [];
+    var map = null, capaPol = null, capaCol = null, breaks = [], KW = -1;
     function quintiles(vals){
       vals = vals.slice().sort(function(a,b){ return a-b; });
       var q = [];
       for(var i=1;i<5;i++){ var x = vals[Math.floor(i*vals.length/5)]; if(x!==undefined && x>vals[0] && q.indexOf(x)<0) q.push(x); }
+      return q;
+    }
+    // quintiles ponderados por población de 18+ (índice y escolaridad): el corte q es el primer valor bajo el cual
+    // queda al menos q/5 de la población; mismo criterio que el Excel del índice (percentil con valores estrictamente menores)
+    function quintilesPond(pares){
+      pares = pares.filter(function(p){ return p[1]>0; }).sort(function(a,b){ return a[0]-b[0]; });
+      var total = 0; pares.forEach(function(p){ total += p[1]; });
+      var q = [], cw = 0, sig = 1;
+      for(var i=0;i<pares.length && sig<5;i++){
+        if(i===0 || pares[i][0]!==pares[i-1][0]){
+          var x = pares[i][0];
+          while(sig<5 && 5*cw >= sig*total){ if(q.indexOf(x)<0) q.push(x); sig++; }
+        }
+        cw += pares[i][1];
+      }
       return q;
     }
     // con valores repetidos puede haber menos de 5 tramos: se reparten a lo largo de la rampa
@@ -2431,7 +2446,7 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
         h += '<div class="legrow"><i style="background:'+rampa(i)+'"></i>'+t+u+'</div>';
       }
       h += '<div class="legrow"><i style="background:'+NODATA+'"></i>Sin dato o suprimido ('+fmt(nulos)+' de '+fmt(total)+')</div>';
-      h += '<div class="legnote">'+v.d+' Tramos calculados dentro de '+st.comuna+'.'+(st.rural ? ' Las entidades rurales van con color más tenue.' : '')+'</div>';
+      h += '<div class="legnote">'+v.d+(v.pond ? ' Quintiles ponderados por la población de 18 años o más, calculados dentro de ' : ' Tramos calculados dentro de ')+st.comuna+'.'+(st.rural ? ' Las entidades rurales van con color más tenue.' : '')+'</div>';
       if(st.colegios){
         h += '<div class="legnote" style="color:var(--ink-2);font-weight:600;margin-top:9px">Colegios 2025</div>';
         depeOrder.forEach(function(d){ h += '<div class="legrow"><i style="background:var('+DEPE_COLOR[d]+');border-radius:50%;width:11px;border:2px solid #fff"></i>'+d+'</div>'; });
@@ -2451,7 +2466,9 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
 
       var filas = MZ.filter(function(r){ return r.c===st.comuna && (st.rural || r.t==='M'); });
       var vals = filas.map(function(r){ return r.v[st.v.k]; }).filter(function(x){ return x!==null && x!==undefined; });
-      breaks = quintiles(vals);
+      breaks = st.v.pond
+        ? quintilesPond(filas.filter(function(r){ var x = r.v[st.v.k]; return x!==null && x!==undefined; }).map(function(r){ return [r.v[st.v.k], r.v[KW]]; }))
+        : quintiles(vals);
       capaPol.clearLayers();
       filas.forEach(function(r){
         var lyr = L.geoJSON(r.g, {style: function(){ return estilo(r,false); }});
@@ -2489,6 +2506,7 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
     function iniciarMapa(){
       // posición de cada indicador en v: 0 personas, 1 viviendas, luego el orden de MZK
       VARS.forEach(function(v){ v.k = 2 + MZK.indexOf(v.key); });
+      KW = 2 + MZK.indexOf('w'); // población de 18+ del polígono, ponderador de los quintiles
       loading.remove();
       map = L.map(mapDiv, {preferCanvas:true, scrollWheelZoom:true, zoomControl:false});
       L.control.zoom({position:'bottomleft'}).addTo(map);
