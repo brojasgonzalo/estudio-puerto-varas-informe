@@ -1366,6 +1366,7 @@ function comunaPicker(initial, onChange, conRegion){
   }
   row.appendChild(sel);
   marcar(initial);
+  row.marcar = marcar; // para sincronizar el selector cuando la comuna cambia desde afuera
   return row;
 }
 
@@ -2236,7 +2237,7 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
   var tabs = {colegios: document.getElementById('tab-colegios'), censo: document.getElementById('tab-censo')};
   var panes = {colegios: document.getElementById('pane-colegios'), censo: document.getElementById('pane-censo')};
   if(!tabs.censo) return;
-  var censo = null; // se arma recién la primera vez que se abre la pestaña (los datos pesan ~4 MB)
+  var censo = null; // se arma recién la primera vez que se abre la pestaña (los datos pesan ~9 MB, las 30 comunas)
 
   function abrir(k){
     Object.keys(tabs).forEach(function(t){
@@ -2311,7 +2312,8 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
       {p:'comp', key:'jefm', n:'Jefatura femenina', d:'Hogares con jefa de hogar mujer, sobre el total de hogares.'}
     ];
     VARS.forEach(function(v){ if(v.u===undefined) v.u = '%'; if(v.dec===undefined) v.dec = 1; });
-    var RAMP = ['#fdebd3','#f8c88e','#ee9f4c','#cf6e1d','#94450a'];
+    // un solo tono, de claro a oscuro, con saltos de luminosidad iguales (OKLab L 0,95 a 0,43, pasos de 0,13)
+    var RAMP = ['#feebd2','#efb87c','#db832b','#b35703','#813700'];
     var NODATA = '#b4bab6'; // gris fijo: se tiene que ver igual en tema claro y oscuro
     var st = {comuna: comunaIni, v: VARS[0], pest: 'pob', colegios: false, rural: false};
     var css = function(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); };
@@ -2323,14 +2325,8 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
     var sub = heln('div',{class:'sub'}); sub.textContent = 'Manzanas urbanas y entidades rurales (INE)'; tw.appendChild(sub);
     head.appendChild(tw); mount.appendChild(head);
 
-    var comunaRow = heln('div',{class:'switcher'}), comunaBtns = {};
-    COMUNAS.forEach(function(c){
-      var b = heln('button',{class:'pillmini',type:'button'});
-      b.style.setProperty('--dotc','var('+COMUNA_COLOR[c]+')');
-      b.appendChild(heln('span',{class:'dot'})); b.appendChild(document.createTextNode(c));
-      b.addEventListener('click', function(){ if(st.comuna!==c){ st.comuna=c; render(true); } });
-      comunaBtns[c]=b; comunaRow.appendChild(b);
-    });
+    // las 30 comunas de Los Lagos: Puerto Varas como botón y el resto en la lista (mismo selector que migración)
+    var comunaRow = comunaPicker(st.comuna, function(c){ if(st.comuna!==c){ st.comuna=c; render(true); } });
     mount.appendChild(comunaRow);
 
     var capasRow = heln('div',{class:'map-legend'});
@@ -2406,14 +2402,15 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
       for(var i=0;i<pares.length && sig<5;i++){
         if(i===0 || pares[i][0]!==pares[i-1][0]){
           var x = pares[i][0];
-          while(sig<5 && 5*cw >= sig*total){ if(q.indexOf(x)<0) q.push(x); sig++; }
+          // se guardan los 4 cortes aunque se repitan (quintil vacío), para que el quintil 5 siempre sea el color más oscuro
+          while(sig<5 && 5*cw >= sig*total){ q.push(x); sig++; }
         }
         cw += pares[i][1];
       }
       return q;
     }
     // con valores repetidos puede haber menos de 5 tramos: se reparten a lo largo de la rampa
-    function rampa(i){ var n = breaks.length+1; return RAMP[n===1 ? 2 : Math.round(i*4/(n-1))]; }
+    function rampa(i){ if(st.v.pond) return RAMP[i]; var n = breaks.length+1; return RAMP[n===1 ? 2 : Math.round(i*4/(n-1))]; }
     function colorDe(x){
       if(x===null || x===undefined) return null;
       for(var i=0;i<breaks.length;i++){ if(x < breaks[i]) return rampa(i); }
@@ -2440,23 +2437,35 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
     function leyenda(nulos, total){
       var v = st.v, h = '<h4>'+v.n+'</h4>', u = v.u;
       var f = function(x){ return x.toFixed(v.dec).replace('.',','); };
-      for(var i=0;i<=breaks.length;i++){
+      var tramo = function(i){
         var a = i===0 ? null : breaks[i-1], b = i<breaks.length ? breaks[i] : null;
-        var t = a===null ? (b===null ? 'todas iguales' : 'menos de '+f(b)) : (b===null ? f(a)+' o más' : f(a)+' a menos de '+f(b));
-        h += '<div class="legrow"><i style="background:'+rampa(i)+'"></i>'+t+u+'</div>';
+        return a===null ? (b===null ? 'todas iguales' : 'menos de '+f(b)) : (b===null ? f(a)+' o más' : f(a)+' a menos de '+f(b));
+      };
+      if(v.pond && !breaks.length){
+        h += '<div class="legnote">Sin dato en esta comuna'+(v.key==='ise' ? ': tiene muy pocos polígonos para estandarizar el índice (tamaño efectivo menor a 30).' : '.')+'</div>';
+      } else if(v.pond){
+        // quintiles de población: del 20% de mayor nivel (más oscuro) al 20% de menor nivel; un quintil vacío no se lista
+        var NQ = {4:'Quintil 5, 20% de mayor nivel', 0:'Quintil 1, 20% de menor nivel'};
+        for(var i=breaks.length;i>=0;i--){
+          if(i>0 && i<breaks.length && breaks[i-1]===breaks[i]) continue;
+          h += '<div class="legrow"><i style="background:'+rampa(i)+'"></i>'+(NQ[i] || 'Quintil '+(i+1))+': '+tramo(i)+u+'</div>';
+        }
+      } else {
+        for(var i=0;i<=breaks.length;i++) h += '<div class="legrow"><i style="background:'+rampa(i)+'"></i>'+tramo(i)+u+'</div>';
       }
       h += '<div class="legrow"><i style="background:'+NODATA+'"></i>Sin dato o suprimido ('+fmt(nulos)+' de '+fmt(total)+')</div>';
       h += '<div class="legnote">'+v.d+(v.pond ? ' Quintiles ponderados por la población de 18 años o más, calculados dentro de ' : ' Tramos calculados dentro de ')+st.comuna+'.'+(st.rural ? ' Las entidades rurales van con color más tenue.' : '')+'</div>';
       if(st.colegios){
         h += '<div class="legnote" style="color:var(--ink-2);font-weight:600;margin-top:9px">Colegios 2025</div>';
-        depeOrder.forEach(function(d){ h += '<div class="legrow"><i style="background:var('+DEPE_COLOR[d]+');border-radius:50%;width:11px;border:2px solid #fff"></i>'+d+'</div>'; });
+        if(colegiosGeo[st.comuna]) depeOrder.forEach(function(d){ h += '<div class="legrow"><i style="background:var('+DEPE_COLOR[d]+');border-radius:50%;width:11px;border:2px solid #fff"></i>'+d+'</div>'; });
+        else h += '<div class="legnote">El mapa de colegios cubre solo las 4 comunas del estudio.</div>';
       }
       boxLeft.innerHTML = h;
     }
 
     function render(mover){
       h3.textContent = 'Caracterización Censo 2024, ' + st.comuna;
-      COMUNAS.forEach(function(c){ comunaBtns[c].setAttribute('aria-pressed', c===st.comuna ? 'true' : 'false'); });
+      comunaRow.marcar(st.comuna);
       bRur.setAttribute('aria-pressed', st.rural ? 'true' : 'false');
       bCol.setAttribute('aria-pressed', st.colegios ? 'true' : 'false');
       varBtns.forEach(function(b){ b.setAttribute('aria-pressed', VARS[+b.getAttribute('data-i')]===st.v ? 'true' : 'false'); });
