@@ -899,9 +899,9 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
 @media (max-width:760px){ #censomap{height:420px} .censo-vars{width:auto;max-height:none} }
 .gpspin{background:none;border:none}
 .gpspin svg{display:block;filter:drop-shadow(0 1px 1.5px rgba(0,0,0,.45))}
-.mapclean{position:absolute;z-index:520;left:50%;transform:translateX(-50%);bottom:12px;border:2px solid var(--c-pv);background:var(--surface);color:var(--c-pv);font:700 12px "IBM Plex Mono",monospace;padding:7px 14px;border-radius:2px;cursor:pointer;box-shadow:2px 2px 0 color-mix(in srgb, var(--c-pv) 35%, transparent)}
-.mapclean:hover{background:color-mix(in srgb, var(--c-pv) 10%, var(--surface))}
-.mapclean[aria-pressed="true"]{background:var(--c-pv);color:#fff}
+.mapclean{position:absolute;z-index:520;right:8px;bottom:22px;border:1px solid var(--line);background:var(--surface);color:var(--ink-2);font:600 10.5px "IBM Plex Sans",sans-serif;padding:3px 8px;border-radius:2px;cursor:pointer;opacity:.9}
+.mapclean:hover{opacity:1;color:var(--ink);border-color:var(--ink-3)}
+.mapclean[aria-pressed="true"]{color:var(--c-pv);border-color:var(--c-pv)}
 #panel-mapa.limpio .mapoverlay,#panel-mapa.limpio .map-legend-hint,#panel-mapa.limpio .extra-hint,#panel-mapa.limpio .depe-note,#panel-mapa.limpio .nobase-note{display:none}
 .comsel{border:1.5px solid var(--line);background:var(--surface);color:var(--ink-2);font:700 11.5px "IBM Plex Sans",sans-serif;padding:3px 6px;border-radius:2px;cursor:pointer;max-width:220px}
 .comsel.on{border-color:var(--c-pv);color:var(--c-pv)}
@@ -941,6 +941,14 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
 .torta-acc>summary:hover .acc-txt{text-decoration-style:solid}
 .torta-acc .acc-det{color:var(--ink-3);font-weight:500;font-size:11.5px}
 .torta-acc .acc-body{padding:8px 0 0}
+.leaflet-tooltip.pin-tt{width:auto;white-space:nowrap;padding:4px 8px;font-weight:600;font-size:12px;color:#181d1a}
+.listclear{border:1.5px solid var(--c-pv);background:transparent;color:var(--c-pv);font:700 12px "IBM Plex Sans",sans-serif;padding:5px 11px;border-radius:2px;cursor:pointer;margin:0 0 10px}
+.listclear:hover{background:var(--c-pv);color:#fff}
+#panel-torta .torta-wrap{grid-template-columns:minmax(220px,300px) minmax(0,600px);gap:28px}
+#panel-torta .torta-acc .acc-body{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}
+@media (max-width:820px){#panel-torta .torta-acc .acc-body{grid-template-columns:1fr}}
+#panel-torta .torta-acc .acc-body>.subtle{grid-column:1/-1}
+@media (max-width:700px){#panel-torta .torta-wrap{grid-template-columns:1fr}}
 .nobase-note{position:absolute;left:58px;bottom:10px;z-index:450;background:var(--surface);border:1px solid var(--line);padding:5px 9px;font-size:11px;color:var(--ink-3);border-radius:2px;max-width:55%}
 </style>
 
@@ -1003,8 +1011,8 @@ table.clist{width:100%;border-collapse:collapse;font-size:12px}
   </div>
 
   <div class="grid">
-    <div class="card" id="panel-torta"></div>
-    <div class="card" id="panel-flow"></div>
+    <div class="card mapcard" id="panel-torta"></div>
+    <div class="card mapcard" id="panel-flow"></div>
     <div class="card" id="panel-entrada"></div>
     <div class="card" id="panel-origen"></div>
   </div>
@@ -1381,6 +1389,7 @@ function makePanel(mountId, opts){
   });
 
   function render(comuna){
+    var cw0 = CW, pl0 = PADL, pr0 = PADR; if(opts.cw){ CW = opts.cw; PADL = 58; PADR = 34; }
     var data = opts.perComuna ? opts.dataAll[comuna] : opts.dataAll;
     h3.textContent = opts.title(comuna);
     var extraRow = null;
@@ -1395,6 +1404,7 @@ function makePanel(mountId, opts){
       var s = opts.stat(data);
       statBox.innerHTML = s.value+'<small>'+s.label+'</small>';
     } else statBox.innerHTML='';
+    CW = cw0; PADL = pl0; PADR = pr0;
   }
   render(opts.initial);
 }
@@ -1498,7 +1508,7 @@ makePanel('panel-origen',{
 makePanel('panel-flow',{
   title:function(c){ return 'Se mantiene, entra, ingresa y sale, '+c; },
   sub:'Barras: matrícula del tramo regular según dónde estaba el año anterior · línea punteada: salidas al año siguiente',
-  region:true, dataAll:migFlow, perComuna:true, order:FLOW_ORDER, colorMap:FLOW_COLOR, years:YEARS11, initial:DEFAULT_COMUNA,
+  region:true, cw:1000, dataAll:migFlow, perComuna:true, order:FLOW_ORDER, colorMap:FLOW_COLOR, years:YEARS11, initial:DEFAULT_COMUNA,
   overlayKey:'Salidas', overlayLabel:'Salidas',
   stat:function(d){ var v=d['Salidas']; var last=null; for(var i=v.length-1;i>=0;i--){ if(v[i]!=null){last=v[i];break;} } return {value:fmt(last), label:'salidas 2024'}; }
 });
@@ -1860,7 +1870,13 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
     // cada colegio es un pin del color de su dependencia (mismo tamaño para todos; sin detalle al pasar el cursor)
     colsMapa.slice().sort(function(a,b){ return b.lat-a.lat; }).forEach(function(c){
       var color = c.r===0 ? 'var(--c-extra)' : 'var('+(DEPE_COLOR[c.d]||'--ink-3')+')';
-      L.marker([c.lat,c.lon], {icon: pinIcon(color), keyboard:false}).addTo(markersLayer);
+      L.marker([c.lat,c.lon], {icon: pinIcon(color), keyboard:false})
+        .bindTooltip(c.n, {direction:'top', offset:[0,-26], className:'pin-tt'})
+        .on('click', function(){
+          selectedRbd = c.rbd; selectedRbdName = c.n; accList.open = true; render();
+          setTimeout(function(){ accWrap.scrollIntoView({behavior:'smooth', block:'nearest'}); }, 30);
+        })
+        .addTo(markersLayer);
     });
     // solo recentra el mapa cuando cambia la comuna o se aisla/deja de aislar un colegio, no en cada filtro de leyenda o cambio de año
     var centerKey = comunaSel+'|'+selectedRbd;
@@ -1941,13 +1957,14 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
     });
 
     // ---- acordeon: lista de colegios
-    var arr = colsAll.slice().sort(function(a,b){
+    var base = selectedRbd!=null ? colsYear.filter(function(c){ return c.rbd===selectedRbd; }) : colsAll;
+    var arr = base.slice().sort(function(a,b){
       var x=a[sortKey], y=b[sortKey];
       if(x==null && y==null) return 0; if(x==null) return 1; if(y==null) return -1;
       if(typeof x==='string') return sortDir*x.localeCompare(y,'es');
       return sortDir*(x-y);
     });
-    accListSum.textContent = 'Ver detalle de establecimientos ('+arr.length+')';
+    accListSum.textContent = selectedRbd!=null ? 'Detalle del colegio seleccionado' : 'Ver detalle de establecimientos ('+arr.length+')';
     var cols_def = [['n','Colegio',''],['d','Dependencia',''],['m','Matrícula','num'],['e','Entran','num','ent'],['i','Ingresan 1° básico','num','ing'],['k','Se mantienen','num','mant'],['s','Salen','num','sal']];
     var th = cols_def.map(function(c){
       return '<th class="'+c[2]+(sortKey===c[0]?' on':'')+'" data-k="'+c[0]+'">'+c[1]+(c[3]?infoIcon(c[3]):'')+(sortKey===c[0]?(sortDir<0?' &#9662;':' &#9652;'):'')+'</th>';
@@ -1959,7 +1976,8 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
       return '<tr'+(c.rbd===selectedRbd?' class="sel"':'')+'><td><a href="#" class="establink" data-rbd="'+c.rbd+'" title="'+c.n.replace(/"/g,'')+'">'+c.n+'</a>'+(c.r===0?'<span class="tipotag">'+c.t.toLowerCase()+'</span>':'')+(c.lat==null?'<span class="nocoord">sin ubicación</span>':'')+'</td>'+
         '<td><span class="sq" style="background:var('+(DEPE_COLOR[c.d]||'--ink-3')+')"></span>'+c.d+'</td><td class="num">'+fmt(c.m)+'</td>'+tds+'</tr>';
     }).join('');
-    listBody.innerHTML = (arr.length ? '<div class="tbl-wrap"><table class="clist"><thead><tr>'+th+'</tr></thead><tbody>'+body+'</tbody></table></div>' : '<div class="subtle">Ningún colegio con estos filtros.</div>')+
+    listBody.innerHTML = (selectedRbd!=null ? '<button type="button" class="listclear">&larr; Limpiar selección y ver todos los colegios</button>' : '') +
+      (arr.length ? '<div class="tbl-wrap"><table class="clist"><thead><tr>'+th+'</tr></thead><tbody>'+body+'</tbody></table></div>' : '<div class="subtle">Ningún colegio con estos filtros.</div>')+
       '<div class="subtle">Sigue la comuna, el año y las dependencias marcadas arriba. Click en un encabezado para ordenar y en un colegio para verlo en el mapa. Se excluyeron los establecimientos sin matrícula ese año.</div>';
     listBody.querySelectorAll('th').forEach(function(t){
       t.addEventListener('click',function(){
@@ -1969,6 +1987,8 @@ var BASE_GEO = {"comunas":{"Puerto Varas":{"type":"Polygon","coordinates":[[[-73
       });
     });
     wireEstabLinks(listBody);
+    var lc = listBody.querySelector('.listclear');
+    if(lc) lc.addEventListener('click', function(){ selectedRbd = null; render(); });
   }
 
   render();
